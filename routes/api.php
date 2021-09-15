@@ -21,5 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/v1', function () {
     return [
-    	'data'='Welcome to the Desert of the Real'];
+    	'data'=>'Welcome to the Desert of the Real'];
 });
