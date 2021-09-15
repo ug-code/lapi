@@ -82,7 +82,13 @@ window.onload = function() {
     oauth2RedirectUrl: "{{ route('l5-swagger.'.$documentation.'.oauth2_callback') }}",
 
     requestInterceptor: function(request) {
-      request.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}';
+      if(request){
+          var csrf_token ='{{ csrf_token() }}'
+          if(csrf_token){
+              request.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}';
+          }
+
+      }
       return request;
     },
 
@@ -99,8 +105,6 @@ window.onload = function() {
 
     persistAuthorization: {!! config('l5-swagger.defaults.persist_authorization') ? 'true' : 'false' !!},
   })
-
-  window.ui = ui
 }
 </script>
 </body>

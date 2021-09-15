@@ -28,23 +28,15 @@ class AuthController extends Controller
      *   tags={"auth"},
      *   summary="Get a JWT via given credentials",
      *
-     *  @OA\Parameter(
-     *      name="email",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string"
-     *      )
-     *   ),
-     *   @OA\Parameter(
-     *       name="password",
-     *      in="query",
-     *      required=true,
-     *      @OA\Schema(
-     *           type="string"
-     *      )
-     *   ),
-     *
+     * @OA\RequestBody(
+     *    required=true,
+     *    description="Pass user credentials",
+     *    @OA\JsonContent(
+     *       required={"email","password"},
+     *       @OA\Property(property="email", type="string", format="email",),
+     *       @OA\Property(property="password", type="string", format="password"),
+     *    ),
+     * ),
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -77,14 +69,7 @@ class AuthController extends Controller
      * path="/api/auth/me",
      *   tags={"auth"},
      *   summary="Get the authenticated User.",
-    *   @OA\Parameter(
-     *         name="Authorization",
-     *         in="header",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
+     *  security={ {"bearerAuth": {} }},
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -93,7 +78,6 @@ class AuthController extends Controller
      *      )
      *   )
      * )
-     *
      **/
     public function me()
     {
@@ -102,21 +86,13 @@ class AuthController extends Controller
 
     /**
      * Log the user out (Invalidate the token).
-
      * @return \Illuminate\Http\JsonResponse
      *
      * @OA\Post(
      * path="/api/auth/logout",
      *   tags={"auth"},
      *   summary="Log the user out (Invalidate the token)..",
-     *   @OA\Parameter(
-     *         name="Authorization",
-     *         in="header",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
+    *  security={ {"bearerAuth": {} }},
      *   @OA\Response(
      *      response=200,
      *       description="Success",
@@ -125,6 +101,7 @@ class AuthController extends Controller
      *      )
      *   )
      * )
+     *
      *
      **/
     public function logout()
@@ -143,15 +120,8 @@ class AuthController extends Controller
      * path="/api/auth/refresh",
      *   tags={"auth"},
      *   summary="Refresh a token.",
-     *   @OA\Parameter(
-     *         name="Authorization",
-     *         in="header",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *   @OA\Response(
+     *  security={ {"bearerAuth": {} }},
+     * @OA\Response(
      *      response=200,
      *       description="Success",
      *      @OA\MediaType(
@@ -159,7 +129,6 @@ class AuthController extends Controller
      *      )
      *   )
      * )
-     *
      **/
     public function refresh()
     {
