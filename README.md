@@ -10,6 +10,10 @@
 ## About 
 https://latestapi.herokuapp.com/
 
+api generator
+
+php.exe artisan laravel-swagger:generate > storage/api-docs/api-docs.json
+
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
