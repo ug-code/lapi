@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TradingController;
+use App\Http\Controllers\WeatherController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,16 +22,27 @@ Route::middleware('auth:sanctum')
          return $request->user();
      });
 */
-
-Route::prefix('auth')
+Route::prefix('v1')
      ->group(function() {
-         Route::post('/login', [AuthController::class, 'login']);
-         Route::post('/logout', [AuthController::class, 'logout']);
-         Route::post('/refresh', [AuthController::class, 'refresh']);
-         Route::post('/me', [AuthController::class, 'me']);
+
+         /** Auth route */
+         Route::post('/auth/login', [AuthController::class, 'login']);
+         Route::post('/auth/logout', [AuthController::class, 'logout']);
+         Route::post('/auth/refresh', [AuthController::class, 'refresh']);
+         Route::post('/auth/me', [AuthController::class, 'me']);
+
+         /**
+          * Weather
+          */
+         Route::get('/weather/current', [WeatherController::class, 'current']);
+
+         /**
+          * Trading
+          */
+         Route::get('/trading/cheap', [TradingController::class, 'cheap']);
+
 
      });
-
 
 Route::get('/v1', function() {
     return [

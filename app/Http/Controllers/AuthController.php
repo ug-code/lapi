@@ -24,7 +24,7 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      *
      * @OA\Post(
-     ** path="/api/auth/login",
+     ** path="/api/v1/auth/login",
      *   tags={"auth"},
      *   summary="Get a JWT via given credentials",
      *
@@ -66,7 +66,7 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      *
      * @OA\Post(
-     * path="/api/auth/me",
+     * path="/api/v1/auth/me",
      *   tags={"auth"},
      *   summary="Get the authenticated User.",
      *  security={ {"bearerAuth": {} }},
@@ -89,7 +89,7 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      *
      * @OA\Post(
-     * path="/api/auth/logout",
+     * path="/api/v1/auth/logout",
      *   tags={"auth"},
      *   summary="Log the user out (Invalidate the token)..",
     *  security={ {"bearerAuth": {} }},
@@ -117,7 +117,7 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      *
      * @OA\Post(
-     * path="/api/auth/refresh",
+     * path="/api/v1/auth/refresh",
      *   tags={"auth"},
      *   summary="Refresh a token.",
      *  security={ {"bearerAuth": {} }},

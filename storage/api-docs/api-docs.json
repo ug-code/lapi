@@ -5,14 +5,14 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/api/auth/login": {
+        "/api/v1/auth/login": {
             "post": {
                 "tags": [
                     "auth"
                 ],
                 "summary": "Get a JWT via given credentials",
                 "description": "Get a JWT via given credentials.",
-                "operationId": "8dcb70df1020986038d098cc08d05dae",
+                "operationId": "5db09a35f965c6ca7529ed3c3cae8e21",
                 "requestBody": {
                     "description": "Pass user credentials",
                     "required": true,
@@ -48,14 +48,14 @@
                 }
             }
         },
-        "/api/auth/me": {
+        "/api/v1/auth/me": {
             "post": {
                 "tags": [
                     "auth"
                 ],
                 "summary": "Get the authenticated User.",
                 "description": "Get the authenticated User.",
-                "operationId": "f0b15943f55143d36f606a2dbd1d2366",
+                "operationId": "13d1f01202f154603056e4e19c8ee04d",
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -71,14 +71,14 @@
                 ]
             }
         },
-        "/api/auth/logout": {
+        "/api/v1/auth/logout": {
             "post": {
                 "tags": [
                     "auth"
                 ],
                 "summary": "Log the user out (Invalidate the token)..",
                 "description": "Log the user out (Invalidate the token).",
-                "operationId": "69281b12abb272c76871f19cb17ca563",
+                "operationId": "8f1a443d39c3bf383f851fbb51253c64",
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -94,14 +94,14 @@
                 ]
             }
         },
-        "/api/auth/refresh": {
+        "/api/v1/auth/refresh": {
             "post": {
                 "tags": [
                     "auth"
                 ],
                 "summary": "Refresh a token.",
                 "description": "Refresh a token.",
-                "operationId": "b2eae7a8032954d25b46c7ec6f489c68",
+                "operationId": "05bd0482845348cafa4da9e4fb7d0ffb",
                 "responses": {
                     "200": {
                         "description": "Success",
@@ -115,6 +115,59 @@
                         "bearerAuth": []
                     }
                 ]
+            }
+        },
+        "/api/v1/trading/cheap": {
+            "get": {
+                "tags": [
+                    "Trading"
+                ],
+                "summary": "How to find cheap stocks (Daily,Weekly,Monthly SMA200 order by volume)",
+                "operationId": "f8ac8332d99deeafd76d402d65e296cf",
+                "parameters": [
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "description": "interval values that need to be considered for filter 1W=weekly,1M=Monthly,Empty Daily ",
+                        "style": "form",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "default": "1W",
+                                "enum": [
+                                    "1W",
+                                    "1M"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/weather/current": {
+            "get": {
+                "tags": [
+                    "Weather"
+                ],
+                "summary": "Get current weather of the Istanbul",
+                "operationId": "3cc4a9c64a9ca18d6b006b0a8009884b",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
             }
         }
     },
