@@ -40,6 +40,7 @@ Route::prefix('v1')
           * Trading
           */
          Route::get('/trading/cheap', [TradingController::class, 'cheap']);
+         Route::get('/trading/kapBuySellNotifitions', [TradingController::class, 'kapBuySellNotifitions']);
 
 
      });

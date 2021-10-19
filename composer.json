@@ -13,10 +13,14 @@
         "laravel/sanctum": "^2.11",
         "laravel/telescope": "^4.6",
         "laravel/tinker": "^2.5",
+        "mll-lab/laravel-graphql-playground": "^2.5",
         "mtrajano/laravel-swagger": "^0.6.4",
-        "tymon/jwt-auth": "^1.0"
+        "nuwave/lighthouse": "^5.23",
+        "tymon/jwt-auth": "^1.0",
+        "vladimir-yuldashev/laravel-queue-rabbitmq": "^11.3"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^2.10",
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",
@@ -53,13 +57,19 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "dont-discover": [
+                "barryvdh/laravel-ide-helper"
+            ]
         }
     },
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "platform":{
+            "php":"7.4.11"
+        }
+
     },
     "minimum-stability": "dev",
     "prefer-stable": true
