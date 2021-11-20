@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ElectricVehiclesController;
 use App\Http\Controllers\TradingController;
 use App\Http\Controllers\WeatherController;
 use Illuminate\Http\Request;
@@ -23,24 +24,33 @@ Route::middleware('auth:sanctum')
      });
 */
 Route::prefix('v1')
+     ->middleware(['api'])
      ->group(function() {
 
          /** Auth route */
          Route::post('/auth/login', [AuthController::class, 'login']);
          Route::post('/auth/logout', [AuthController::class, 'logout']);
          Route::post('/auth/refresh', [AuthController::class, 'refresh']);
-         Route::post('/auth/me', [AuthController::class, 'me']);
 
-         /**
-          * Weather
-          */
-         Route::get('/weather/current', [WeatherController::class, 'current']);
+         Route::group(['middleware' => ['jwt.verify']], function() {
 
-         /**
-          * Trading
-          */
-         Route::get('/trading/cheap', [TradingController::class, 'cheap']);
-         Route::get('/trading/kapBuySellNotifitions', [TradingController::class, 'kapBuySellNotifitions']);
+
+             Route::post('/auth/me', [AuthController::class, 'me']);
+
+             /**
+              * Weather
+              */
+             Route::get('/weather/current', [WeatherController::class, 'current']);
+
+             /**
+              * Trading
+              */
+             Route::get('/trading/cheap', [TradingController::class, 'cheap']);
+             Route::get('/trading/kapBuySellNotifitions', [TradingController::class, 'kapBuySellNotifitions']);
+
+
+             Route::get('/ev/pull', [ElectricVehiclesController::class, 'pull']);
+         });
 
 
      });
@@ -50,6 +60,20 @@ Route::get('/v1', function() {
         'data' => 'Welcome to the Desert of the Real'
     ];
 });
+Route::get('/sendmail', function() {
 
+    $html = "Hi,welcome user!";
+
+    Mail::send([], [], function($message) use ($html) {
+        $message->to("vimlererke@vusra.com")
+                ->subject("hellow")
+                ->from("vimlererke@vusra.com")
+                ->setBody($html, 'text/html');
+    });
+
+    return [
+        'data' => 'allways ready general'
+    ];
+});
 
 
