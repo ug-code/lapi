@@ -37,21 +37,19 @@ class JwtMiddleware extends BaseMiddleware
                         'message' => 'Token Invalid',
                         'code'    => 1
                     ]
-                ]);
+                ], 401);
 
             } else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
                 return response()->json([
-                        'data'   => null,
-                        'status' => false,
-                        'err_'   => [
-                            'message' => 'Token Expired',
-                            'code'    => 1
-
-                        ]
+                    'data'   => null,
+                    'status' => false,
+                    'err_'   => [
+                        'message' => 'Token Expired',
+                        'code'    => 1
 
                     ]
 
-                );
+                ], 401);
 
             } else {
                 if ($e->getMessage() === self::USER_NOT_FOUND) {
@@ -62,7 +60,7 @@ class JwtMiddleware extends BaseMiddleware
                             "message" => self::USER_NOT_FOUND,
                             "code"    => 1
                         ]
-                    ]);
+                    ], 401);
                 }
 
                 return response()->json([
@@ -72,7 +70,7 @@ class JwtMiddleware extends BaseMiddleware
                         'message' => 'Authorization Token not found',
                         'code'    => 1
                     ]
-                ]);
+                ], 401);
             }
 
         }
