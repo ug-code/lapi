@@ -1,20 +1,38 @@
-FROM richarvey/nginx-php-fpm:2.0.0
+FROM php:8.1-apache
 
-COPY . .
+# Install necessary libraries
+RUN apt-get update && apt-get install -y \
+    libonig-dev \
+    libzip-dev
 
-# Image config
-ENV SKIP_COMPOSER 1
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
+# Install PHP extensions
+RUN docker-php-ext-install \
+    mbstring \
+    zip
 
-# Laravel config
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
+# Copy Laravel application
+COPY . /var/www/html
 
-# Allow composer to run as root
-ENV COMPOSER_ALLOW_SUPERUSER 1
+# Set working directory
+WORKDIR /var/www/html
 
-CMD ["/start.sh"]
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Install dependencies
+RUN composer install
+
+# Change ownership of our applications
+RUN chown -R www-data:www-data /var/www/html
+
+RUN docker-php-ext-install mbstring
+
+COPY .env.example .env
+RUN php artisan key:generate
+
+# Expose port 80
+EXPOSE 80
+
+# Adjusting Apache configurations
+RUN a2enmod rewrite
+COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
