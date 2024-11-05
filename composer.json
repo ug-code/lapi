@@ -1,32 +1,27 @@
 {
     "name": "laravel/laravel",
     "type": "project",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "description": "The skeleton application for the Laravel framework.",
+    "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
-        "php": "^7.3|^8.0",
-        "darkaonline/l5-swagger": "^8.0",
-        "fruitcake/laravel-cors": "^2.0",
-        "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "^8.54",
-        "laravel/sanctum": "^2.11",
-        "laravel/telescope": "^4.6",
-        "laravel/tinker": "^2.5",
-        "mll-lab/laravel-graphql-playground": "^2.5",
-        "mtrajano/laravel-swagger": "^0.6.4",
-        "nuwave/lighthouse": "^5.23",
-        "tymon/jwt-auth": "^1.0",
-        "vladimir-yuldashev/laravel-queue-rabbitmq": "^11.3"
+        "php": "^8.2",
+        "laravel/framework": "^11.9",
+        "laravel/sanctum": "^4.0",
+        "laravel/tinker": "^2.9",
+        "mongodb/laravel-mongodb": "5.1",
+        "rakutentech/laravel-request-docs": "^2.41",
+        "tymon/jwt-auth": "^2.1"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^2.10",
-        "facade/ignition": "^2.5",
-        "fakerphp/faker": "^1.9.1",
-        "laravel/sail": "^1.0.1",
-        "mockery/mockery": "^1.4.2",
-        "nunomaduro/collision": "^5.0",
-        "phpunit/phpunit": "^9.3.3"
+        "barryvdh/laravel-ide-helper": "^3.2",
+        "fakerphp/faker": "^1.23",
+        "laravel/pail": "^1.1",
+        "laravel/pint": "^1.13",
+        "laravel/sail": "^1.26",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.1",
+        "phpunit/phpunit": "^11.0.1"
     },
     "autoload": {
         "psr-4": {
@@ -46,13 +41,22 @@
             "@php artisan package:discover --ansi"
         ],
         "post-update-cmd": [
-            "@php artisan vendor:publish --tag=laravel-assets --ansi"
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
+            "Illuminate\\Foundation\\ComposerScripts::postUpdate",
+            "@php artisan ide-helper:generate",
+            "@php artisan ide-helper:meta"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "post-create-project-cmd": [
-            "@php artisan key:generate --ansi"
+            "@php artisan key:generate --ansi",
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+            "@php artisan migrate --graceful --ansi"
+        ],
+        "dev": [
+            "Composer\\Config::disableProcessTimeout",
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
         ]
     },
     "extra": {
@@ -66,11 +70,11 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
-        "platform":{
-            "php":"7.4.11"
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
         }
-
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true
 }
