@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\JwtMiddleware;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
@@ -12,10 +13,10 @@ class AuthController extends Controller
     {
         return [
             new Middleware('auth:api', except: ['login','register']),
+            new Middleware(JwtMiddleware::class, except: ['login','register']),
         ];
     }
-//stoutamyerhedingerertk6856
-//9f7Yc8lH2mKWvAEB
+
     public function register(Request $request){
         $user = new User();
         $user->fullname = $request->get('fullname');

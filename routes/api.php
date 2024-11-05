@@ -8,22 +8,23 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group([
-    'middleware' => [JwtMiddleware::class],
-    'prefix'     => 'auth'
+    'prefix' => 'auth'
 
 ], function ($router) {
     Route::controller(AuthController::class)->group(function () {
+        Route::middleware([JwtMiddleware::class])->group(function () {
+            Route::post('refresh', 'refresh');
+            Route::post('me', 'me');
+            Route::post('register', 'register');
+        });
         Route::post('login', 'login');
         Route::post('logout', 'logout');
-        Route::post('refresh', 'refresh');
-        Route::post('me', 'me');
-        Route::post('register', 'register');
-
     });
+
 });
 
 Route::group([
-    'prefix'     => 'api'
+    'prefix' => 'api'
 
 ], function ($router) {
     Route::prefix('v1')->group(function () {
@@ -31,8 +32,10 @@ Route::group([
         /**
          * Trading
          */
-        Route::get('/trading/cheap', [TradingController::class, 'cheap']);
-        Route::get('/trading/kapBuySellNotifitions', [TradingController::class, 'kapBuySellNotifitions']);
+        Route::get('/trading/cheap', [TradingController::class,
+                                      'cheap']);
+        Route::get('/trading/kapBuySellNotifitions', [TradingController::class,
+                                                      'kapBuySellNotifitions']);
 
     });
 });
