@@ -39,7 +39,7 @@ class MobileAppController extends Controller
 
     public function getKeywordList(): JsonResponse
     {
-        $data = AppKeyword::where('is_learned', 0)->get()->toArray();
+        $data = AppKeyword::get()->toArray();
 
         return response()->json([
             'message' => 'Başarılı bir şekilde kaydedildi.',
