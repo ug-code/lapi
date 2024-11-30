@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MobileAppController;
 use App\Http\Controllers\TradingController;
 use App\Http\Controllers\WeatherController;
 use App\Http\Middleware\JwtMiddleware;
@@ -23,20 +24,23 @@ Route::group([
 
 });
 
-Route::group([
-    'prefix' => 'api'
 
-], function ($router) {
-    Route::prefix('v1')->group(function () {
-
-        /**
-         * Trading
-         */
-        Route::get('/trading/cheap', [TradingController::class,
-                                      'cheap']);
-        Route::get('/trading/kapBuySellNotifitions', [TradingController::class,
-                                                      'kapBuySellNotifitions']);
-
+Route::prefix('v1')->group(function () {
+    /**
+     * Trading
+     */
+    Route::controller(TradingController::class)->group(function () {
+        Route::get('/trading/cheap', 'cheap');
+        Route::get('/trading/kapBuySellNotifitions', 'kapBuySellNotifitions');
     });
+
+    Route::controller(MobileAppController::class)->group(function () {
+        Route::post('/mobileApp/createKeyword', 'createKeyword');
+        Route::get('/mobileApp/getKeywordList', 'getKeywordList');
+        Route::get('/mobileApp/setLearnKeyword/{id}', 'setLearnKeyword');
+    });
+
+
 });
+
 

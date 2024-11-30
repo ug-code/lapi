@@ -4,13 +4,11 @@ namespace App\Http\Controllers;
 
 
 use App\Services\TradingService;
-use App\Services\WeatherService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class TradingController extends Controller
 {
-    protected $tradingService;
+    protected TradingService $tradingService;
 
     public function __construct(TradingService $tradingService)
     {
@@ -19,7 +17,7 @@ class TradingController extends Controller
     }
 
 
-    public function cheap(Request $request)
+    public function cheap(Request $request): ?array
     {
 
         $interval = $request->query('interval');
