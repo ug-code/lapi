@@ -66,4 +66,15 @@ class MobileAppController extends Controller
             'data'    => $data
         ]);
     }
+
+    public function getKeyword($id): JsonResponse
+    {
+        $data = AppKeyword::find($id)->toArray();
+
+        return response()->json([
+            'message' => 'Başarılı bir şekilde kaydedildi.',
+            'data'    => $data
+        ]);
+    }
+
 }
