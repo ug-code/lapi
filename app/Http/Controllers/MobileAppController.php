@@ -29,7 +29,7 @@ class MobileAppController extends Controller
         $appKeyword->eng_keyword = $request->eng_keyword ?? null;
         $appKeyword->tr_keyword  = $request->tr_keyword ?? null;
         $appKeyword->is_learned  = false;
-        $appKeyword->category_id    = $request->category_id ?? 1;
+        $appKeyword->category_id = $request->category_id ?? 1;
         $appKeyword->save();
 
         return response()->json([
@@ -60,7 +60,7 @@ class MobileAppController extends Controller
 
     public function translate($keyword)
     {
-       $data = $this->dictionaryService->scan($keyword);
+        $data = $this->dictionaryService->scan($keyword);
         return response()->json([
             'message' => 'Başarılı bir şekilde kaydedildi.',
             'data'    => $data
@@ -69,11 +69,14 @@ class MobileAppController extends Controller
 
     public function getKeyword($id): JsonResponse
     {
-        $data = AppKeyword::find($id)->toArray();
-
+        $data      = AppKeyword::find($id);
+        $translate = $this->dictionaryService->scan($data->eng_keyword);
         return response()->json([
             'message' => 'Başarılı bir şekilde kaydedildi.',
-            'data'    => $data
+            'data'    => [
+                'keyword'   => $data->toArray(),
+                'translate' => $translate,
+            ]
         ]);
     }
 
