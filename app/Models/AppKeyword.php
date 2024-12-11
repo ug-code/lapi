@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int id
  * @property int user_id
  * @property boolean is_learned
- * @property string category
+ * @property int category_id
  * @property string eng_keyword
  * @property string tr_keyword
  */
@@ -22,7 +22,7 @@ class AppKeyword extends Model
             'id',
             'user_id',
             'is_learned',
-            'category',
+            'category_id',
             'eng_keyword',
             'tr_keyword',
         ];
