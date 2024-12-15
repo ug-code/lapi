@@ -10,8 +10,8 @@ class SetLearnKeywordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id'         => 'required|string',
-            'is_learned' => 'required|bool',
+            'id'         => 'required|integer',
+            'is_learned' => 'required|boolean',
         ];
 
     }
