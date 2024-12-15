@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\MobileApp\CreateCategoryRequest;
 use App\Http\Requests\MobileApp\CreateKeywordRequest;
+use App\Http\Requests\MobileApp\SetLearnKeywordRequest;
 use App\Models\AppKeyword;
 use App\Models\AppKeywordCategory;
 use App\Services\DictionaryService;
@@ -59,9 +60,12 @@ class MobileAppController extends Controller
         ]);
     }
 
-    public function setLearnKeyword($id): JsonResponse
+    public function setLearnKeyword(SetLearnKeywordRequest $request): JsonResponse
     {
-        $data = AppKeyword::find($id)->update(['is_learned' => true]);
+
+        $request->validated();
+
+        $data = AppKeyword::find($request->id)->update(['is_learned' => $request->is_learned]);
 
         return response()->json([
             'message' => 'Başarılı bir şekilde kaydedildi.',
@@ -93,7 +97,7 @@ class MobileAppController extends Controller
 
     public function myKeywordCount(): JsonResponse
     {
-        $data      = AppKeyword::where('user_id',1)->count();
+        $data = AppKeyword::where('user_id', 1)->count();
         return response()->json([
             'message' => 'Başarılı bir şekilde kaydedildi.',
             'data'    => $data

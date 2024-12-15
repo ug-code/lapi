@@ -37,7 +37,7 @@ Route::prefix('v1')->group(function () {
     Route::controller(MobileAppController::class)->group(function () {
         Route::post('/mobileApp/createKeyword', 'createKeyword');
         Route::get('/mobileApp/getKeywordList', 'getKeywordList');
-        Route::get('/mobileApp/setLearnKeyword/{id}', 'setLearnKeyword');
+        Route::post('/mobileApp/setLearnKeyword', 'setLearnKeyword');
         Route::get('/mobileApp/translate/{keyword}', 'translate');
         Route::get('/mobileApp/getKeyword/{id}', 'getKeyword');
         Route::post('/mobileApp/createCategory', 'createCategory');
