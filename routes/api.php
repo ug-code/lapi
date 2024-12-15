@@ -42,6 +42,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/mobileApp/getKeyword/{id}', 'getKeyword');
         Route::post('/mobileApp/createCategory', 'createCategory');
         Route::get('/mobileApp/myKeywordCount', 'myKeywordCount');
+        Route::get('/mobileApp/getCategory', 'getCategory');
     });
 
 

@@ -110,7 +110,6 @@ class MobileAppController extends Controller
 
         $validatedData = $request->validated();
 
-
         $category = AppKeywordCategory::firstOrCreate([
             'description' => $request->description
         ], ['user_id' => 1]);
@@ -120,6 +119,17 @@ class MobileAppController extends Controller
         return response()->json([
             'message' => $message,
             'data'    => $category
+        ]);
+    }
+
+
+    public function getCategory(): JsonResponse
+    {
+        $category = AppKeywordCategory::where("user_id", 1)->get();
+
+        return response()->json([
+            'message' => "Başarılı bir şekilde kaydedildi",
+            'data'    => $category->toArray()
         ]);
     }
 
