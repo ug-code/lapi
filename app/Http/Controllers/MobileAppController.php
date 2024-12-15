@@ -65,7 +65,7 @@ class MobileAppController extends Controller
 
         $request->validated();
 
-        $data = AppKeyword::find($request->id)->update(['is_learned' => $request->is_learned]);
+        $data = AppKeyword::find($request->id)->update(['is_learned' => $request->isLearned]);
 
         return response()->json([
             'message' => 'Başarılı bir şekilde kaydedildi.',

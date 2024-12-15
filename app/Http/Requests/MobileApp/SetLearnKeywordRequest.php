@@ -11,7 +11,7 @@ class SetLearnKeywordRequest extends FormRequest
     {
         return [
             'id'         => 'required|integer',
-            'is_learned' => 'required|boolean',
+            'isLearned' => 'required|boolean',
         ];
 
     }
