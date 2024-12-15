@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->string('tr_keyword')->nullable();
             $table->boolean('is_learned')->default(false)->nullable();
             $table->integer('category_id')->nullable();
+            $table->json('detail')->nullable();
             $table->dateTime('created_at')->nullable();
             $table->dateTime('updated_at')->nullable();
             $table->dateTime('deleted_at')->nullable();
