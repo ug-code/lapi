@@ -20,6 +20,13 @@ class AIChatController extends Controller
 
     public function chatWithAI(ChatWithAIRequest $request)
     {
+        $body = $request->message ?? "";
+
+        return $this->aiService->chatWithAI($body);
+    }
+
+    public function chatWithAIforDiet(ChatWithAIRequest $request)
+    {
         $userData = $request->message ?? "";
         $body = [
             "model" => "gpt-4o-mini",
