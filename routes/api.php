@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AIChatController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MobileAppController;
 use App\Http\Controllers\TradingController;
@@ -45,6 +46,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/mobileApp/getCategory', 'getCategory');
     });
 
+    Route::controller(AIChatController::class)->group(function () {
+        Route::post('/aiChat/chatWithAI', 'chatWithAI');
+    });
 
 });
 
