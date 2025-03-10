@@ -48,7 +48,7 @@ Route::prefix('v1')->group(function () {
 
     Route::controller(AIChatController::class)->group(function () {
         Route::post('/aiChat/chatWithAI', 'chatWithAI');
-        Route::post('/aiChat/chatWithAIforDiet', 'chatWithAIforDiet');
+        Route::post('/aiChat/chatWithAICustom', 'chatWithAICustom');
     });
 
 });

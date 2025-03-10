@@ -18,25 +18,25 @@ class AIChatController extends Controller
         $this->aiService = $aiService;
     }
 
-    public function chatWithAI(ChatWithAIRequest $request)
+    public function chatWithAICustom(ChatWithAIRequest $request)
     {
         $body = $request->message ?? "";
 
         return $this->aiService->chatWithAI($body);
     }
 
-    public function chatWithAIforDiet(ChatWithAIRequest $request)
+    public function chatWithAI(ChatWithAIRequest $request)
     {
         $userData = $request->message ?? "";
-        $body = [
-            "model" => "gpt-4o-mini",
-            "messages" => [
+        $body     = [
+            "model"       => "gpt-4o-mini",
+            "messages"    => [
                 [
-                    "role" => "system",
+                    "role"    => "system",
                     "content" => "Sen bir diyet uzmanısın. Kullanıcının sağlık verilerini analiz ederek öneriler sunuyorsun."
                 ],
                 [
-                    "role" => "user",
+                    "role"    => "user",
                     "content" => $userData
                 ]
             ],
