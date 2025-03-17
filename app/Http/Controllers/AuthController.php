@@ -57,7 +57,7 @@ class AuthController extends Controller
 
     public function userList(): JsonResponse
     {
-        $user = User::get()->toArray();
+        $user = User::paginate(10);
         return response()->json(['status' => true,
                                  'data'   => $user]);
     }
