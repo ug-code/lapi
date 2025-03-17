@@ -19,6 +19,8 @@ class AuthController extends Controller
     }
 
     public function register(RegisterRequest $request){
+        $request->validated();
+
         $user = new User();
         $user->fullname = $request->get('fullname');
         $user->email = $request->get('email');
