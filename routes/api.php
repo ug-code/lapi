@@ -17,9 +17,9 @@ Route::group([
         Route::middleware([JwtMiddleware::class])->group(function () {
             Route::post('refresh', 'refresh');
             Route::post('me', 'me');
-            Route::post('register', 'register');
         });
         Route::post('login', 'login');
+        Route::post('register', 'register');
         Route::post('logout', 'logout');
     });
 

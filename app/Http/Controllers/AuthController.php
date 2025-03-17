@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Middleware\JwtMiddleware;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
@@ -17,7 +18,7 @@ class AuthController extends Controller
         ];
     }
 
-    public function register(Request $request){
+    public function register(RegisterRequest $request){
         $user = new User();
         $user->fullname = $request->get('fullname');
         $user->email = $request->get('email');
