@@ -9,6 +9,13 @@ use Laravel\Sanctum\HasApiTokens;
 use MongoDB\Laravel\Eloquent\SoftDeletes;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+/**
+ * @property mixed fullname
+ * @property mixed email
+ * @property mixed password
+ * @property mixed remember_token
+ * @property mixed email_verified_at
+ */
 class User extends Authenticatable implements JWTSubject
 {
 

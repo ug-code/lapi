@@ -4,7 +4,6 @@ use App\Http\Controllers\AIChatController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MobileAppController;
 use App\Http\Controllers\TradingController;
-use App\Http\Controllers\WeatherController;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +16,7 @@ Route::group([
         Route::middleware([JwtMiddleware::class])->group(function () {
             Route::post('refresh', 'refresh');
             Route::post('me', 'me');
+            Route::post('userList', 'userList');
         });
         Route::post('login', 'login');
         Route::post('register', 'register');
