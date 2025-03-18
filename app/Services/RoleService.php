@@ -30,9 +30,9 @@ class RoleService
     /**
      * Rolleri listeler
      */
-    public function getRoles(int $perPage = 10): LengthAwarePaginator
+    public function getRoles(): LengthAwarePaginator
     {
-        return Role::paginate($perPage);
+        return Role::get();
     }
 
     /**
@@ -53,7 +53,7 @@ class RoleService
             'name' => $data['name'],
             'guard_name' => $data['guard_name'] ?? $role->guard_name
         ]);
-        
+
         return $role;
     }
-} 
+}

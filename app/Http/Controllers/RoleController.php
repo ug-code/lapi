@@ -22,8 +22,8 @@ class RoleController extends Controller
      */
     public function index(IndexRoleRequest $request): JsonResponse
     {
-        $roles = $this->roleService->getRoles($request->getPerPage());
-        
+        $roles = $this->roleService->getRoles();
+
         return response()->json([
             'status' => true,
             'data' => $roles
@@ -50,7 +50,7 @@ class RoleController extends Controller
     public function show(int $id): JsonResponse
     {
         $role = $this->roleService->getRole($id);
-        
+
         return response()->json([
             'status' => true,
             'data' => $role
@@ -83,4 +83,4 @@ class RoleController extends Controller
             'message' => 'Rol başarıyla silindi'
         ]);
     }
-} 
+}
