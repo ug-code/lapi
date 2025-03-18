@@ -10,6 +10,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+/**
+ * @property int id
+ * @property string fullname
+ * @property string email
+ * @property string password
+ * @property string remember_token
+ * @property string email_verified_at
+ */
 class EloquentUserModel extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;

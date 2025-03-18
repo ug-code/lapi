@@ -9,6 +9,14 @@ use Laravel\Sanctum\HasApiTokens;
 use MongoDB\Laravel\Eloquent\SoftDeletes;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+/**
+ * @property int id
+ * @property string fullname
+ * @property string email
+ * @property string password
+ * @property string remember_token
+ * @property string email_verified_at
+ */
 class MongoUserModel extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
