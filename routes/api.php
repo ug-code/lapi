@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MobileAppController;
 use App\Http\Controllers\TradingController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -52,8 +53,14 @@ Route::prefix('v1')->group(function () {
         Route::post('/aiChat/chatWithAICustom', 'chatWithAICustom');
     });
 
-    // Rol yönetimi rotaları
-    Route::apiResource('roles', RoleController::class)->middleware([JwtMiddleware::class]);
+
+    Route::middleware([JwtMiddleware::class])->group(function () {
+        // Rol yönetimi rotaları
+        Route::apiResource('roles', RoleController::class);
+        Route::controller(PermissionController::class)->group(function () {
+            Route::post('/permissions/create', 'create');
+        });
+
+    });
+
 });
-
-
