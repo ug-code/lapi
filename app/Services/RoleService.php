@@ -30,7 +30,7 @@ class RoleService
     /**
      * Rolleri listeler
      */
-    public function getRoles(): LengthAwarePaginator
+    public function getRoles()
     {
         return Role::get();
     }
