@@ -34,7 +34,7 @@ class AuthService
      */
     public function getUserList(int $perPage = 10)
     {
-        return User::paginate($perPage);
+        return User::with('roles:id,name')->paginate($perPage);
     }
 
     /**
@@ -72,4 +72,4 @@ class AuthService
             'expires_in' => auth()->factory()->getTTL() * 60
         ];
     }
-} 
+}
