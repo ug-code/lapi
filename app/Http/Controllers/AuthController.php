@@ -5,12 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Middleware\JwtMiddleware;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Models\User;
+use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controllers\Middleware;
 
 class AuthController extends Controller
 {
+    protected AuthService $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
 
     public static function middleware(): array
     {
@@ -25,16 +31,13 @@ class AuthController extends Controller
     public function register(RegisterRequest $request): JsonResponse
     {
         $request->validated();
+        $user = $this->authService->register($request->all());
 
-        $user           = new User();
-        $user->fullname = $request->get('fullname');
-        $user->email    = $request->get('email');
-        $user->password = bcrypt($request->get('password'));
-        $user->save();
-
-        return response()->json(['status'  => true,
-                                 'message' => 'User created successfully',
-                                 'data'    => $user]);
+        return response()->json([
+            'status'  => true,
+            'message' => 'User created successfully',
+            'data'    => $user
+        ]);
     }
 
     /**
@@ -45,21 +48,23 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $request->validated();
-
         $credentials = $request->only('email', 'password');
-        $token       = auth()->attempt($credentials);
+        
+        $token = $this->authService->login($credentials);
         if (!$token) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return $this->respondWithToken($token);
+        return response()->json($this->authService->createTokenResponse($token));
     }
 
     public function userList(): JsonResponse
     {
-        $user = User::paginate(10);
-        return response()->json(['status' => true,
-                                 'data'   => $user]);
+        $users = $this->authService->getUserList();
+        return response()->json([
+            'status' => true,
+            'data'   => $users
+        ]);
     }
 
     /**
@@ -69,7 +74,7 @@ class AuthController extends Controller
      */
     public function me(): JsonResponse
     {
-        return response()->json(auth()->user());
+        return response()->json($this->authService->getAuthenticatedUser());
     }
 
     /**
@@ -79,8 +84,7 @@ class AuthController extends Controller
      */
     public function logout(): JsonResponse
     {
-        auth()->logout();
-
+        $this->authService->logout();
         return response()->json(['message' => 'Successfully logged out']);
     }
 
@@ -91,7 +95,8 @@ class AuthController extends Controller
      */
     public function refresh(): JsonResponse
     {
-        return $this->respondWithToken(auth()->refresh());
+        $token = $this->authService->refreshToken();
+        return response()->json($this->authService->createTokenResponse($token));
     }
 
     /**
@@ -103,10 +108,6 @@ class AuthController extends Controller
      */
     protected function respondWithToken(string $token): JsonResponse
     {
-        return response()->json([
-            'access_token' => $token,
-            'token_type'   => 'bearer',
-            'expires_in'   => auth()->factory()->getTTL() * 60
-        ]);
+        return response()->json($this->authService->createTokenResponse($token));
     }
 }
