@@ -25,8 +25,10 @@ class TelescopeMiddleware
             $response->withCookie(cookie('token', $token, $minutes));
 
             $user  = JWTAuth::parseToken()->authenticate();
+
+
             $email = $user->email ?? null;
-            if ($email == "tmp@tmp.com.tr") {
+            if ($email == "test@test.com") {
                 return $response;
             } else {
                 return response()->json(['error' => 'Token not valid'], 401);
