@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AIChatController;
+use App\Http\Controllers\AiToolController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FintableController;
 use App\Http\Controllers\MobileAppController;
+use App\Http\Controllers\PdfController;
 use App\Http\Controllers\TradingController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
@@ -54,6 +57,17 @@ Route::prefix('v1')->group(function () {
     });
 
 
+    Route::apiResource('ai-tools', AiToolController::class);
+
+    Route::controller(PdfController::class)->group(function () {
+        Route::get('/pdf/test', 'test');
+    });
+
+    Route::controller(FintableController::class)->group(function () {
+        Route::get('/funds/yield/{query?}', 'fundsYield');
+    });
+
+
     Route::middleware([JwtMiddleware::class])->group(function () {
         // Rol yönetimi rotaları
         Route::apiResource('roles', RoleController::class);
@@ -64,3 +78,5 @@ Route::prefix('v1')->group(function () {
     });
 
 });
+
+
