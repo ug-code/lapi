@@ -8,8 +8,8 @@
 </p>
 
 ## About
-https://quarrelsome-tisha-larapi-cef81b40.koyeb.app/request-docs
+https://larapi.koyeb.app/request-docs
 
-https://quarrelsome-tisha-larapi-cef81b40.koyeb.app/telescope?token={token}
+https://larapi.koyeb.app/telescope?token={token}
 
 ![image](https://github.com/user-attachments/assets/0e778974-f1a6-455b-bc80-2ee9eef2797c)
