@@ -58,6 +58,27 @@ class UserService
     }
 
     /**
+     * Kullanıcıya birden fazla rol atar
+     *
+     * @param int $userId
+     * @param array $roleIds
+     * @return User
+     */
+    public function assignMultipleRoles(int $userId, array $roleIds): User
+    {
+        $user = $this->userRepository->findById($userId);
+
+        foreach ($roleIds as $roleId) {
+            // Eğer rol zaten atanmışsa atlayalım
+            if (!$user->hasRole($roleId)) {
+                $this->userRepository->assignRole($userId, $roleId);
+            }
+        }
+
+        return $user->fresh();
+    }
+
+    /**
      * Kullanıcının rollerini getirir
      *
      * @param int $userId

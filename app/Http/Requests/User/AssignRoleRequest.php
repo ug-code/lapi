@@ -23,7 +23,8 @@ class AssignRoleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'role_id' => 'required|exists:roles,id'
+            'role_ids' => 'required|array',
+            'role_ids.*' => 'required|exists:roles,id'
         ];
     }
 
@@ -35,8 +36,10 @@ class AssignRoleRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'role_id.required' => 'Rol ID zorunludur',
-            'role_id.exists' => 'Belirtilen rol bulunamadı'
+            'role_ids.required' => 'En az bir rol ID\'si zorunludur',
+            'role_ids.array' => 'Rol ID\'leri bir dizi olarak gönderilmelidir',
+            'role_ids.*.required' => 'Rol ID\'si boş olamaz',
+            'role_ids.*.exists' => 'Belirtilen rol bulunamadı'
         ];
     }
 }

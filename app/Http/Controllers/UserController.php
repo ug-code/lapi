@@ -55,7 +55,7 @@ class UserController extends Controller
     }
 
     /**
-     * Kullanıcıya rol atar
+     * Kullanıcıya rol veya rolleri atar
      *
      * @param AssignRoleRequest $request
      * @param int $id
@@ -65,11 +65,11 @@ class UserController extends Controller
     {
         $validated = $request->validated();
 
-        $user = $this->userService->assignRole($id, $validated['role_id']);
+        $user = $this->userService->assignMultipleRoles($id, $validated['role_ids']);
 
         return response()->json([
             'status' => true,
-            'message' => 'Rol başarıyla atandı',
+            'message' => count($validated['role_ids']) > 1 ? 'Roller başarıyla atandı' : 'Rol başarıyla atandı',
             'data' => [
                 'user' => $user,
                 'roles' => $user->roles
