@@ -36,7 +36,7 @@ class MobileAppController extends Controller
     {
         $validatedData = $request->validated();
         $validatedData['user_id'] = 1; // Şimdilik sabit kullanıcı ID
-
+        
         $result = $this->mobileAppService->createKeyword($validatedData);
 
         return response()->json([
@@ -69,7 +69,7 @@ class MobileAppController extends Controller
     public function setLearnKeyword(SetLearnKeywordRequest $request): JsonResponse
     {
         $request->validated();
-
+        
         $data = $this->mobileAppService->setLearnKeyword($request->id, $request->isLearned);
 
         return response()->json([
@@ -87,7 +87,7 @@ class MobileAppController extends Controller
     public function translate($keyword)
     {
         $data = $this->mobileAppService->translate($keyword);
-
+        
         return response()->json([
             'message' => 'Çeviri başarıyla tamamlandı.',
             'data'    => $data
@@ -103,7 +103,7 @@ class MobileAppController extends Controller
     public function getKeyword($id): JsonResponse
     {
         $data = $this->mobileAppService->getKeywordWithTranslation($id);
-
+        
         return response()->json([
             'message' => 'Kelime başarıyla getirildi.',
             'data'    => $data
@@ -118,7 +118,7 @@ class MobileAppController extends Controller
     public function myKeywordCount(): JsonResponse
     {
         $data = $this->mobileAppService->getKeywordCount(1); // Şimdilik sabit kullanıcı ID
-
+        
         return response()->json([
             'message' => 'Kelime sayısı başarıyla getirildi.',
             'data'    => $data
@@ -134,7 +134,7 @@ class MobileAppController extends Controller
     public function createCategory(CreateCategoryRequest $request): JsonResponse
     {
         $request->validated();
-
+        
         $result = $this->mobileAppService->createCategory($request->description, 1); // Şimdilik sabit kullanıcı ID
 
         return response()->json([

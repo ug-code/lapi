@@ -9,6 +9,7 @@ use App\Http\Controllers\PdfController;
 use App\Http\Controllers\TradingController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\UserController;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -75,6 +76,14 @@ Route::prefix('v1')->group(function () {
             Route::post('/permissions/create', 'create');
         });
 
+        // Kullanıcı yönetimi rotaları
+        Route::controller(UserController::class)->group(function () {
+            Route::get('/users', 'index');
+            Route::get('/users/{id}', 'show');
+            Route::get('/users/{id}/roles', 'getUserRoles');
+            Route::post('/users/{id}/roles', 'assignRole');
+            Route::delete('/users/{id}/roles/{roleId}', 'removeRole');
+        });
     });
 
 });
