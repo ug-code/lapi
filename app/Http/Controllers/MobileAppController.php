@@ -6,131 +6,155 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MobileApp\CreateCategoryRequest;
 use App\Http\Requests\MobileApp\CreateKeywordRequest;
 use App\Http\Requests\MobileApp\SetLearnKeywordRequest;
-use App\Models\AppKeyword;
-use App\Models\AppKeywordCategory;
-use App\Services\DictionaryService;
-use App\Services\TradingService;
+use App\Services\MobileAppService;
 use Illuminate\Http\JsonResponse;
 
 class MobileAppController extends Controller
 {
-    protected DictionaryService $dictionaryService;
+    /**
+     * @var MobileAppService
+     */
+    protected MobileAppService $mobileAppService;
 
-    public function __construct(DictionaryService $dictionaryService)
+    /**
+     * MobileAppController constructor
+     *
+     * @param MobileAppService $mobileAppService
+     */
+    public function __construct(MobileAppService $mobileAppService)
     {
-
-        $this->dictionaryService = $dictionaryService;
+        $this->mobileAppService = $mobileAppService;
     }
 
+    /**
+     * Kelime oluşturur
+     *
+     * @param CreateKeywordRequest $request
+     * @return JsonResponse
+     */
     public function createKeyword(CreateKeywordRequest $request): JsonResponse
     {
-
         $validatedData = $request->validated();
-        $checkKeyword  = AppKeyword::where('user_id', 1)->where('eng_keyword', $request->eng_keyword)
-            ->first();
-        if ($checkKeyword) {
-            return response()->json([
-                'message' => 'Kelime mevcut.',
-                'data'    => $validatedData
-            ]);
-        }
+        $validatedData['user_id'] = 1; // Şimdilik sabit kullanıcı ID
 
-        $appKeyword              = new AppKeyword();
-        $appKeyword->user_id     = 1;
-        $appKeyword->eng_keyword = $request->eng_keyword ?? null;
-        $appKeyword->tr_keyword  = $request->tr_keyword ?? null;
-        $appKeyword->is_learned  = false;
-        $appKeyword->category_id = $request->category_id ?? 1;
-        $appKeyword->detail      = $this->dictionaryService->scan($request->eng_keyword);
-        $appKeyword->save();
+        $result = $this->mobileAppService->createKeyword($validatedData);
 
         return response()->json([
-            'message' => 'Başarılı bir şekilde kaydedildi.',
-            'data'    => $validatedData
+            'message' => $result['message'],
+            'data'    => $result['data']
         ]);
     }
 
+    /**
+     * Kelime listesini getirir
+     *
+     * @return JsonResponse
+     */
     public function getKeywordList(): JsonResponse
     {
-        $data = AppKeyword::orderBy('eng_keyword')->get()->toArray();
+        $data = $this->mobileAppService->getKeywordList();
 
         return response()->json([
-            'message' => 'Başarılı bir şekilde kaydedildi.',
+            'message' => 'Başarılı bir şekilde getirildi.',
             'data'    => $data
         ]);
     }
 
+    /**
+     * Kelime öğrenilme durumunu günceller
+     *
+     * @param SetLearnKeywordRequest $request
+     * @return JsonResponse
+     */
     public function setLearnKeyword(SetLearnKeywordRequest $request): JsonResponse
     {
-
         $request->validated();
 
-        $data = AppKeyword::find($request->id)->update(['is_learned' => $request->isLearned]);
+        $data = $this->mobileAppService->setLearnKeyword($request->id, $request->isLearned);
 
         return response()->json([
-            'message' => 'Başarılı bir şekilde kaydedildi.',
+            'message' => 'Başarılı bir şekilde güncellendi.',
             'data'    => $data
         ]);
     }
 
+    /**
+     * Kelime çevirisi yapar
+     *
+     * @param string $keyword
+     * @return JsonResponse
+     */
     public function translate($keyword)
     {
-        $data = $this->dictionaryService->scan($keyword);
+        $data = $this->mobileAppService->translate($keyword);
+
         return response()->json([
-            'message' => 'Başarılı bir şekilde kaydedildi.',
+            'message' => 'Çeviri başarıyla tamamlandı.',
             'data'    => $data
         ]);
     }
 
+    /**
+     * ID'ye göre kelime detayını getirir
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
     public function getKeyword($id): JsonResponse
     {
-        $data      = AppKeyword::find($id);
-        $translate = $this->dictionaryService->scan($data->eng_keyword);
-        return response()->json([
-            'message' => 'Başarılı bir şekilde kaydedildi.',
-            'data'    => [
-                'keyword'   => $data->toArray(),
-                'translate' => $translate,
-            ]
-        ]);
-    }
+        $data = $this->mobileAppService->getKeywordWithTranslation($id);
 
-    public function myKeywordCount(): JsonResponse
-    {
-        $data = AppKeyword::where('user_id', 1)->count();
         return response()->json([
-            'message' => 'Başarılı bir şekilde kaydedildi.',
+            'message' => 'Kelime başarıyla getirildi.',
             'data'    => $data
         ]);
     }
 
-
-    public function createCategory(CreateCategoryRequest $request): JsonResponse
+    /**
+     * Kullanıcının kelime sayısını getirir
+     *
+     * @return JsonResponse
+     */
+    public function myKeywordCount(): JsonResponse
     {
-
-        $validatedData = $request->validated();
-
-        $category = AppKeywordCategory::firstOrCreate([
-            'description' => $request->description
-        ], ['user_id' => 1]);
-
-        $message = $category->wasRecentlyCreated ? 'Başarılı bir şekilde kaydedildi.' : 'Kayıt zaten mevcut';
+        $data = $this->mobileAppService->getKeywordCount(1); // Şimdilik sabit kullanıcı ID
 
         return response()->json([
-            'message' => $message,
+            'message' => 'Kelime sayısı başarıyla getirildi.',
+            'data'    => $data
+        ]);
+    }
+
+    /**
+     * Kategori oluşturur
+     *
+     * @param CreateCategoryRequest $request
+     * @return JsonResponse
+     */
+    public function createCategory(CreateCategoryRequest $request): JsonResponse
+    {
+        $request->validated();
+
+        $result = $this->mobileAppService->createCategory($request->description, 1); // Şimdilik sabit kullanıcı ID
+
+        return response()->json([
+            'message' => $result['message'],
+            'data'    => $result['data']
+        ]);
+    }
+
+    /**
+     * Kategori listesini getirir
+     *
+     * @return JsonResponse
+     */
+    public function getCategory(): JsonResponse
+    {
+        $category = $this->mobileAppService->getCategories(1); // Şimdilik sabit kullanıcı ID
+
+        return response()->json([
+            'message' => "Kategoriler başarıyla getirildi",
             'data'    => $category
         ]);
     }
-
-
-    public function getCategory(): JsonResponse
-    {
-        $category = AppKeywordCategory::where("user_id", 1)->get();
-
-        return response()->json([
-            'message' => "Başarılı bir şekilde kaydedildi",
-            'data'    => $category->toArray()
-        ]);
-    }
-
 }
