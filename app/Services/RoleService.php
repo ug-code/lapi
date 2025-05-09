@@ -2,58 +2,84 @@
 
 namespace App\Services;
 
+use App\Repositories\RoleRepository;
 use Spatie\Permission\Models\Role;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class RoleService
 {
     /**
+     * @var RoleRepository
+     */
+    protected RoleRepository $roleRepository;
+
+    /**
+     * RoleService constructor
+     *
+     * @param RoleRepository $roleRepository
+     */
+    public function __construct(RoleRepository $roleRepository)
+    {
+        $this->roleRepository = $roleRepository;
+    }
+
+    /**
      * Yeni rol oluşturur
+     *
+     * @param array $data
+     * @return Role
      */
     public function createRole(array $data): Role
     {
-        return Role::create([
-            'name' => $data['name'],
-            'guard_name' => $data['guard_name'] ?? 'api'
-        ]);
+        // Burada ek iş mantığı eklenebilir
+        return $this->roleRepository->create($data);
     }
 
     /**
      * Rol siler
+     *
+     * @param int $roleId
+     * @return bool
      */
     public function deleteRole(int $roleId): bool
     {
-        $role = Role::findOrFail($roleId);
-        return $role->delete();
+        // Burada ek iş mantığı eklenebilir
+        return $this->roleRepository->delete($roleId);
     }
 
     /**
      * Rolleri listeler
+     *
+     * @return Collection
      */
-    public function getRoles()
+    public function getRoles(): Collection
     {
-        return Role::get();
+        // Burada ek iş mantığı eklenebilir
+        return $this->roleRepository->getAll();
     }
 
     /**
      * Rol detayını getirir
+     *
+     * @param int $roleId
+     * @return Role
      */
     public function getRole(int $roleId): Role
     {
-        return Role::findOrFail($roleId);
+        // Burada ek iş mantığı eklenebilir
+        return $this->roleRepository->findById($roleId);
     }
 
     /**
      * Rolü günceller
+     *
+     * @param int $roleId
+     * @param array $data
+     * @return Role
      */
     public function updateRole(int $roleId, array $data): Role
     {
-        $role = Role::findOrFail($roleId);
-        $role->update([
-            'name' => $data['name'],
-            'guard_name' => $data['guard_name'] ?? $role->guard_name
-        ]);
-
-        return $role;
+        // Burada ek iş mantığı eklenebilir
+        return $this->roleRepository->update($roleId, $data);
     }
 }
