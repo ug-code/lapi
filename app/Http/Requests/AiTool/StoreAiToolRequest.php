@@ -24,7 +24,7 @@ class StoreAiToolRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'api_key' => 'required|string|max:255',
-            'base_url' => 'required|url|max:255',
+            'base_url' => 'nullable|url|max:255',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ];
