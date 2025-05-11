@@ -31,7 +31,8 @@ class AiToolController extends Controller
      */
     public function index(): JsonResponse
     {
-        $tools = $this->aiToolService->getAllTools();
+        $perPage = request()->query('per_page', 15);
+        $tools = $this->aiToolService->getAllTools((int)$perPage);
         return response()->json($tools);
     }
 

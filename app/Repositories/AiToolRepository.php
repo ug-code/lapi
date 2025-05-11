@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\AiTool;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class AiToolRepository
 {
@@ -15,6 +16,17 @@ class AiToolRepository
     public function getAll(): Collection
     {
         return AiTool::all();
+    }
+
+    /**
+     * Tüm AI araçlarını sayfalama ile getirir
+     *
+     * @param int $perPage Sayfa başına gösterilecek kayıt sayısı
+     * @return LengthAwarePaginator
+     */
+    public function getAllPaginated(int $perPage = 15): LengthAwarePaginator
+    {
+        return AiTool::paginate($perPage);
     }
 
     /**
