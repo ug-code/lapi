@@ -24,7 +24,7 @@ class UpdateAiToolRequest extends FormRequest
         return [
             'name' => 'sometimes|required|string|max:255',
             'api_key' => 'sometimes|required|string|max:255',
-            'base_url' => 'sometimes|required|url|max:255',
+            'base_url' => 'nullable|url|max:255',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
         ];

@@ -13,4 +13,9 @@ class AiTool extends Model
         'description',
         'is_active',
     ];
+
+
+    protected $casts = [
+        'is_active' => 'boolean'
+    ];
 }
