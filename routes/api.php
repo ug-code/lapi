@@ -3,7 +3,7 @@
 use App\Http\Controllers\AIChatController;
 use App\Http\Controllers\AiToolController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\FintableController;
+use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\MobileAppController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\TradingController;
@@ -64,7 +64,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/pdf/test', 'test');
     });
 
-    Route::controller(FintableController::class)->group(function () {
+    Route::controller(FinanceController::class)->group(function () {
         Route::get('/funds/yield/{query?}', 'fundsYield');
     });
 
