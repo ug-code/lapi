@@ -13,25 +13,29 @@ class FinanceService
      */
     public function fundsYield(): mixed
     {
-        $browserApiUrl =  env('BROWSER_API_URL', '').'/unblock';
+
         $token = env('BROWSER_API_KEY', '');
 
         $requestData = [
-            'url' =>  env('FINANCE_API_URL', '').'/funds/yield/',
+            'url'               => env('FINANCE_API_URL', '') . '/funds/yield/',
             'browserWSEndpoint' => false,
-            'cookies' => false,
-            'content' => true,
-            'screenshot' => false,
-            'proxy' => 'residential'
+            'cookies'           => false,
+            'content'           => true,
+            'screenshot'        => false,
         ];
 
+        $browserApiUrl = env('BROWSER_API_URL', '') . '/unblock';
+
+        $url = $browserApiUrl . "?token=$token&proxy=residential";
         try {
-            $response = Http::withHeaders([
+            $response = Http::withOptions(['verify'          => false,
+                                           'allow_redirects' => true,])->withHeaders([
                 'Content-Type' => 'application/json'
-            ])->post("$browserApiUrl?token=$token", $requestData);
+            ])->post($url, $requestData);
 
             if ($response->failed()) {
-                return ['error' => 'API isteği başarısız oldu', 'status' => $response->status()];
+                return ['error'  => 'API isteği başarısız oldu',
+                        'status' => $response->status()];
             }
 
             return $response->json();
