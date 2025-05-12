@@ -7,17 +7,17 @@ use Illuminate\Support\Facades\Http;
 class FinanceService
 {
     /**
-     * Browserless.io aracılığıyla Finance fon getirisi verilerini alır
+     *  Finance fon getirisi verilerini alır
      *
      * @return array|mixed
      */
-    public function fundsYield()
+    public function fundsYield(): mixed
     {
-        $browserlessUrl = 'https://production-sfo.browserless.io/unblock';
-        $token = env('BROWSER_API', '');
+        $browserApiUrl =  env('BROWSER_API_URL', '').'/unblock';
+        $token = env('BROWSER_API_KEY', '');
 
         $requestData = [
-            'url' => 'https://api.finance.com/funds/yield/',
+            'url' =>  env('FINANCE_API_URL', '').'/funds/yield/',
             'browserWSEndpoint' => false,
             'cookies' => false,
             'content' => true,
@@ -26,9 +26,9 @@ class FinanceService
         ];
 
         try {
-            $response = \Illuminate\Support\Facades\Http::withHeaders([
+            $response = Http::withHeaders([
                 'Content-Type' => 'application/json'
-            ])->post("$browserlessUrl?token=$token", $requestData);
+            ])->post("$browserApiUrl?token=$token", $requestData);
 
             if ($response->failed()) {
                 return ['error' => 'API isteği başarısız oldu', 'status' => $response->status()];
