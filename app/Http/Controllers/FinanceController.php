@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\FinanceService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class FinanceController
 {
