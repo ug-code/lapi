@@ -25,6 +25,8 @@ class FinanceController
     public function fundsYield($query = ""): JsonResponse
     {
         $response = $this->financeService->fundsYield();
+
+
         return response()->json($response);
     }
 
