@@ -14,7 +14,15 @@ return new class extends Migration
             $table->decimal('yield_value', 10, 2);
             $table->dateTime('date');
             $table->json('raw_data');
+            $table->text('query_params')->nullable();
+            $table->json('response_data')->nullable();
+            $table->dateTime('expires_at')->nullable();
             $table->timestamps();
+
+            // Query parametreleri için indeks
+            $table->index('query_params');
+            // Süresi dolanları hızlı bulmak için indeks
+            $table->index('expires_at');
         });
     }
 
@@ -22,4 +30,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('fund_yields');
     }
-}; 
+};

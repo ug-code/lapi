@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\FundYield;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class FinanceService
 {
@@ -17,7 +19,7 @@ class FinanceService
      * @return array|mixed
      */
     /**
-     * Fintables'dan fon getirisi verilerini alır
+     * Fintables'dan fon getirisi verilerini alır, cache uygulayarak
      *
      * @param string $queryParams İsteğe bağlı olarak eklenecek query parametreleri
      * @return array|mixed
@@ -25,6 +27,12 @@ class FinanceService
      */
     public function fundsYield(string $queryParams = ""): mixed
     {
+        // Cache'ten veriyi kontrol et
+        $cachedData = $this->getFromCache($queryParams);
+        if ($cachedData) {
+            return $cachedData;
+        }
+
         // İstek zaman aşımını önlemek için PHP çalışma süresini arttır
         set_time_limit(300);
         // Çevre değişkenlerini config() helper ile al
@@ -50,7 +58,12 @@ class FinanceService
             $responseData = $response->json();
 
             // Pre etiketi içindeki JSON verisini ayıkla
-            return $this->extractJsonFromHtml($responseData);
+            $result = $this->extractJsonFromHtml($responseData);
+
+            // Sonucu veritabanına cache'le
+            $this->cacheResult($queryParams, $result);
+
+            return $result;
 
         } catch (\Exception $e) {
             // Tüm hataları yakala ve ilgili hatayı kaydet
@@ -61,6 +74,76 @@ class FinanceService
             ]);
 
             return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Cache'ten veriyi al
+     *
+     * @param string $queryParams
+     * @return array|null
+     */
+    private function getFromCache(string $queryParams): ?array
+    {
+        $cacheRecord = \App\Models\FundYield::where('query_params', $queryParams)
+            ->where('expires_at', '>', now())
+            ->latest()
+            ->first();
+
+        if ($cacheRecord) {
+            // Hit sayısını izlemek için cache hit'i loglama (opsiyonel)
+            \Log::info('FundYield cache hit', ['query' => $queryParams]);
+            return $cacheRecord->response_data;
+        }
+
+        return null;
+    }
+
+    /**
+     * Sonucu veritabanına cache'le
+     *
+     * @param string $queryParams
+     * @param array $result
+     * @return void
+     */
+    private function cacheResult(string $queryParams, array $result): void
+    {
+        try {
+            // 1 gün sonra geçersiz olacak şekilde kaydet
+            \App\Models\FundYield::create([
+                'fund_id' => 'cache_' . md5($queryParams), // Unique bir ID oluştur
+                'yield_value' => 0, // Cache için bu değer önemsiz
+                'date' => now(),
+                'raw_data' => [], // Cache için bu değer önemsiz
+                'query_params' => $queryParams,
+                'response_data' => $result,
+                'expires_at' => now()->addDay(), // 1 gün sonra sona erecek
+            ]);
+
+            // Eski cache kayıtlarını temizle (opsiyonel)
+            $this->cleanupExpiredCache();
+
+        } catch (\Exception $e) {
+            // Cache kaydetme hatası kritik değil, sadece logla ve devam et
+            \Log::warning('Cache kaydetme hatası: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
+    }
+
+    /**
+     * Süresi dolmuş cache kayıtlarını temizle
+     *
+     * @return void
+     */
+    private function cleanupExpiredCache(): void
+    {
+        // Haftada bir kez çalışacak şekilde rasteleleştir (performans için)
+        if (rand(1, 100) <= 15) {
+            \App\Models\FundYield::where('expires_at', '<', now())
+                ->where('query_params', '!=', null)
+                ->limit(500) // Bir seferde çok fazla silme işlemi yapma
+                ->delete();
         }
     }
 
