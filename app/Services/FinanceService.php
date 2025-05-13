@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 class FinanceService
@@ -20,10 +19,11 @@ class FinanceService
     /**
      * Fintables'dan fon getirisi verilerini alır
      *
+     * @param string $queryParams İsteğe bağlı olarak eklenecek query parametreleri
      * @return array|mixed
      * @throws \Exception
      */
-    public function fundsYield(): mixed
+    public function fundsYield(string $queryParams = ""): mixed
     {
         // İstek zaman aşımını önlemek için PHP çalışma süresini arttır
         set_time_limit(300);
@@ -31,8 +31,8 @@ class FinanceService
         $token =env('BROWSER_API_KEY', '');
         $browserApiUrl =   env('BROWSER_API_URL', '') . '/chrome/bql';
 
-        // GraphQL sorgusu
-        $query = $this->getFundsQuery();
+        // GraphQL sorgusu (query parametrelerini de geçiriyoruz)
+        $query = $this->getFundsQuery($queryParams);
 
         try {
             // URL'yi oluştur
@@ -67,11 +67,12 @@ class FinanceService
     /**
      * Fintables fon getirisi için GraphQL sorgusunu döndürür
      *
+     * @param string $queryParams İsteğe bağlı olarak eklenecek query parametreleri
      * @return string
      */
-    private function getFundsQuery(): string
+    private function getFundsQuery(string $queryParams = ""): string
     {
-        $financeApiUrl = env('FINANCE_API_URL') . "/funds/yield/";
+        $financeApiUrl = env('FINANCE_API_URL') . "/funds/yield/" . $queryParams;
 
         return <<<GRAPHQL
         mutation FormExample {
@@ -105,7 +106,7 @@ class FinanceService
      *
      * @param string $url
      * @param string $query
-     * @return Response
+     * @return \Illuminate\Http\Client\Response
      */
     private function sendApiRequest(string $url, string $query)
     {
@@ -127,7 +128,7 @@ class FinanceService
      * Hata yanıtını formatlar
      *
      * @param string $message
-     * @param Response $response
+     * @param \Illuminate\Http\Client\Response $response
      * @return array
      */
     private function formatErrorResponse(string $message, $response): array

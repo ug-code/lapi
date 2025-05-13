@@ -19,13 +19,18 @@ class FinanceController
     /**
      * Fon getirisi bilgilerini döndürür.
      *
-     * @param string $query
+     * @param Request $request
      * @return JsonResponse
      */
-    public function fundsYield($query = ""): JsonResponse
+    public function fundsYield(Request $request): JsonResponse
     {
-        $response = $this->financeService->fundsYield();
+        // Query parametrelerini alıp bir string olarak birleştir
+        $queryParams = "";
+        if ($request->getQueryString()) {
+            $queryParams = "?" . $request->getQueryString();
+        }
 
+        $response = $this->financeService->fundsYield($queryParams);
 
         return response()->json($response);
     }
