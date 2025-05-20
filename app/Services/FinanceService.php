@@ -195,24 +195,26 @@ class FinanceService
      */
     private function sendApiRequest(string $url, string $query)
     {
-        // Ortam kontrolü yaparak SSL doğrulamasını yönet
-        $httpOptions = [];
+        try {
+            $httpOptions = [
+                'verify' => false, // SSL doğrulamasını kapat
+            ];
 
-        // Prod değilse SSL doğrulamasını devre dışı bırak
-       // if (app()->environment() !== 'prod') {
-            $httpOptions['verify'] = false;
-        //}
+            return Http::withOptions($httpOptions)
+                ->connectTimeout(0)
+                ->timeout(0)
+                ->withHeaders([
+                    'Content-Type' => 'application/json'
+                ])
+                ->post($url, [
+                    'query' => $query,
+                ])->throw(); // Burada RequestException fırlatılır
+        
 
-        // Http istemcisini yapılandır
-        return Http::withOptions($httpOptions)
-            ->connectTimeout(0)
-            ->timeout(0)
-            ->withHeaders([
-                'Content-Type' => 'application/json'
-            ])
-            ->post($url, [
-                'query' => $query,
-            ]);
+        } catch (\Exception $e) {
+            \Log::error('HTTP İsteği Hatası: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
