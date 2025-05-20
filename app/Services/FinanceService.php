@@ -199,9 +199,9 @@ class FinanceService
         $httpOptions = [];
 
         // Prod değilse SSL doğrulamasını devre dışı bırak
-        if (app()->environment() !== 'prod') {
+       // if (app()->environment() !== 'prod') {
             $httpOptions['verify'] = false;
-        }
+        //}
 
         // Http istemcisini yapılandır
         return Http::withOptions($httpOptions)
