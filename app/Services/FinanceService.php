@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\FundYield;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -193,30 +194,31 @@ class FinanceService
      *
      * @param string $url
      * @param string $query
-     * @return \Illuminate\Http\Client\Response
+     * @return Response
      */
     private function sendApiRequest(string $url, string $query)
     {
-        return Http::withOptions([
-            'verify' => false,
-            // SSL sertifika doğrulamasını devre dışı bırak
-        ])
-            ->timeout(180) // 3 dakika timeout
-            ->retry(3, 1000) // 3 deneme, aralarında 1 saniye bekleyerek
-            ->withHeaders([
-                'Content-Type' => 'application/json'
+        try {
+            return Http::withOptions([
+                'verify' => false,
             ])
-            ->post($url, [
-                'query'     => $query,
-                'variables' => new \stdClass()
-            ]);
+                ->withHeaders([
+                    'Content-Type' => 'application/json'
+                ])
+                ->post($url, [
+                    'query'     => $query,
+                ]);
+        } catch (\Exception $e) {
+            \Log::error('HTTP İsteği Hatası: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
      * Hata yanıtını formatlar
      *
      * @param string $message
-     * @param \Illuminate\Http\Client\Response $response
+     * @param Response $response
      * @return array
      */
     private function formatErrorResponse(string $message, $response): array
