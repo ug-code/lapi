@@ -36,8 +36,8 @@ class FinanceService
         // İstek zaman aşımını önlemek için PHP çalışma süresini arttır
         set_time_limit(300);
         // Çevre değişkenlerini config() helper ile al
-        $token =env('BROWSER_API_KEY', '');
-        $browserApiUrl =   env('BROWSER_API_URL', '') . '/chrome/bql';
+        $token         = env('BROWSER_API_KEY', '');
+        $browserApiUrl = env('BROWSER_API_URL', '') . '/chrome/bql';
 
         // GraphQL sorgusu (query parametrelerini de geçiriyoruz)
         $query = $this->getFundsQuery($queryParams);
@@ -69,8 +69,8 @@ class FinanceService
             // Tüm hataları yakala ve ilgili hatayı kaydet
             \Log::error('Fon getirisi alınırken hata: ' . $e->getMessage(), [
                 'exception' => $e,
-                'class' => __CLASS__,
-                'method' => __METHOD__
+                'class'     => __CLASS__,
+                'method'    => __METHOD__
             ]);
 
             return ['error' => $e->getMessage()];
@@ -85,15 +85,18 @@ class FinanceService
      */
     private function getFromCache(string $queryParams): ?array
     {
-        $cacheRecord = \App\Models\FundYield::where('query_params', $queryParams)
+        $cacheRecord = FundYield::where('query_params', $queryParams)
             ->where('expires_at', '>', now())
             ->latest()
             ->first();
 
         if ($cacheRecord) {
-            // Hit sayısını izlemek için cache hit'i loglama (opsiyonel)
-            \Log::info('FundYield cache hit', ['query' => $queryParams]);
-            return $cacheRecord->response_data;
+          $responseData  =  $cacheRecord->response_data ?? null;
+
+          if($responseData){
+              return json_decode($cacheRecord->response_data,true);
+          }
+
         }
 
         return null;
@@ -110,18 +113,19 @@ class FinanceService
     {
         try {
             // 1 gün sonra geçersiz olacak şekilde kaydet
-            \App\Models\FundYield::create([
-                'fund_id' => 'cache_' . md5($queryParams), // Unique bir ID oluştur
-                'yield_value' => 0, // Cache için bu değer önemsiz
-                'date' => now(),
-                'raw_data' => [], // Cache için bu değer önemsiz
-                'query_params' => $queryParams,
-                'response_data' => $result,
-                'expires_at' => now()->addDay(), // 1 gün sonra sona erecek
-            ]);
+            $aiTool                = new FundYield();
+            $aiTool->fund_id       = 'cache_' . md5($queryParams); // Unique bir ID oluştur
+            $aiTool->yield_value   = 0;
+            $aiTool->date          = now();
+            $aiTool->raw_data      = json_encode($result);
+            $aiTool->query_params  = $queryParams;
+            $aiTool->response_data = json_encode($result);
+            $aiTool->expires_at    = now()->addDay();
+            $aiTool->save();
+
 
             // Eski cache kayıtlarını temizle (opsiyonel)
-            $this->cleanupExpiredCache();
+            //  $this->cleanupExpiredCache();
 
         } catch (\Exception $e) {
             // Cache kaydetme hatası kritik değil, sadece logla ve devam et
@@ -140,7 +144,7 @@ class FinanceService
     {
         // Haftada bir kez çalışacak şekilde rasteleleştir (performans için)
         if (rand(1, 100) <= 15) {
-            \App\Models\FundYield::where('expires_at', '<', now())
+            FundYield::where('expires_at', '<', now())
                 ->where('query_params', '!=', null)
                 ->limit(500) // Bir seferde çok fazla silme işlemi yapma
                 ->delete();
@@ -194,15 +198,16 @@ class FinanceService
     private function sendApiRequest(string $url, string $query)
     {
         return Http::withOptions([
-                'verify' => false, // SSL sertifika doğrulamasını devre dışı bırak
-            ])
+            'verify' => false,
+            // SSL sertifika doğrulamasını devre dışı bırak
+        ])
             ->timeout(180) // 3 dakika timeout
             ->retry(3, 1000) // 3 deneme, aralarında 1 saniye bekleyerek
             ->withHeaders([
                 'Content-Type' => 'application/json'
             ])
             ->post($url, [
-                'query' => $query,
+                'query'     => $query,
                 'variables' => new \stdClass()
             ]);
     }
@@ -247,13 +252,14 @@ class FinanceService
                 } else {
                     return [
                         'error' => 'JSON ayrıştırma hatası: ' . json_last_error_msg(),
-                        'raw' => $jsonString
+                        'raw'   => $jsonString
                     ];
                 }
             }
         }
 
-        return ['error' => 'Beklenen veri bulunamadı', 'response' => $responseData];
+        return ['error'    => 'Beklenen veri bulunamadı',
+                'response' => $responseData];
     }
 
 
