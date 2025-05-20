@@ -35,7 +35,7 @@ class FinanceService
         }
 
         // İstek zaman aşımını önlemek için PHP çalışma süresini arttır
-        set_time_limit(300);
+
         // Çevre değişkenlerini config() helper ile al
         $token         = env('BROWSER_API_KEY', '');
         $browserApiUrl = env('BROWSER_API_URL', '') . '/chrome/bql';
@@ -114,15 +114,12 @@ class FinanceService
     {
         try {
             // 1 gün sonra geçersiz olacak şekilde kaydet
-            $aiTool                = new FundYield();
-            $aiTool->fund_id       = 'cache_' . md5($queryParams); // Unique bir ID oluştur
-            $aiTool->yield_value   = 0;
-            $aiTool->date          = now();
-            $aiTool->raw_data      = json_encode($result);
-            $aiTool->query_params  = $queryParams;
-            $aiTool->response_data = json_encode($result);
-            $aiTool->expires_at    = now()->addDay();
-            $aiTool->save();
+            $fundYield                = new FundYield();
+            $fundYield->fund_id       = 'cache_' . md5($queryParams); // Unique bir ID oluştur
+            $fundYield->query_params  = $queryParams;
+            $fundYield->response_data = json_encode($result);
+            $fundYield->expires_at    = now()->addDay();
+            $fundYield->save();
 
 
             // Eski cache kayıtlarını temizle (opsiyonel)
@@ -208,6 +205,8 @@ class FinanceService
 
         // Http istemcisini yapılandır
         return Http::withOptions($httpOptions)
+            ->connectTimeout(0)
+            ->timeout(0)
             ->withHeaders([
                 'Content-Type' => 'application/json'
             ])
