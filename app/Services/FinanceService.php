@@ -143,7 +143,7 @@ class FinanceService
      */
     private function cleanupExpiredCache(): void
     {
-        // Haftada bir kez çalışacak şekilde rasteleleştir (performans için)
+        // Haftada bir kez çalışacak şekilde rasteleştir (performans için)
         if (rand(1, 100) <= 15) {
             FundYield::where('expires_at', '<', now())
                 ->where('query_params', '!=', null)
@@ -198,20 +198,22 @@ class FinanceService
      */
     private function sendApiRequest(string $url, string $query)
     {
-        try {
-            return Http::withOptions([
-                'verify' => false,
-            ])
-                ->withHeaders([
-                    'Content-Type' => 'application/json'
-                ])
-                ->post($url, [
-                    'query'     => $query,
-                ]);
-        } catch (\Exception $e) {
-            \Log::error('HTTP İsteği Hatası: ' . $e->getMessage());
-            throw $e;
+        // Ortam kontrolü yaparak SSL doğrulamasını yönet
+        $httpOptions = [];
+
+        // Prod değilse SSL doğrulamasını devre dışı bırak
+        if (app()->environment() !== 'prod') {
+            $httpOptions['verify'] = false;
         }
+
+        // Http istemcisini yapılandır
+        return Http::withOptions($httpOptions)
+            ->withHeaders([
+                'Content-Type' => 'application/json'
+            ])
+            ->post($url, [
+                'query' => $query,
+            ]);
     }
 
     /**
@@ -266,4 +268,3 @@ class FinanceService
 
 
 }
-
