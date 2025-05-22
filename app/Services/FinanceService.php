@@ -38,7 +38,7 @@ class FinanceService
 
         // Çevre değişkenlerini config() helper ile al
         $token         = env('BROWSER_API_KEY', '');
-        $browserApiUrl = env('BROWSER_API_URL', '') . '/chrome/bql';
+        $browserApiUrl = env('BROWSER_API_URL', '') . '/chromium/bql';
 
         // GraphQL sorgusu (query parametrelerini de geçiriyoruz)
         $query = $this->getFundsQuery($queryParams);
@@ -163,9 +163,6 @@ class FinanceService
         mutation FormExample {
           goto(url: "$financeApiUrl") {
             status
-          }
-          verify(type: cloudflare) {
-            solved
           },
             html {
             html
@@ -183,7 +180,7 @@ class FinanceService
      */
     private function buildBrowserApiUrl(string $baseUrl, string $token): string
     {
-        return "$baseUrl?token=$token&proxy=residential&proxySticky=true&proxyCountry=tr&humanlike=true&blockConsentModals=true";
+        return "$baseUrl?token=$token";
     }
 
     /**
@@ -209,7 +206,7 @@ class FinanceService
                 ->post($url, [
                     'query' => $query,
                 ])->throw(); // Burada RequestException fırlatılır
-        
+
 
         } catch (\Exception $e) {
             \Log::error('HTTP İsteği Hatası: ' . $e->getMessage());
