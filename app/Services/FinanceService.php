@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\FundYield;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class FinanceService
 {
@@ -22,14 +21,22 @@ class FinanceService
     /**
      * Fintables'dan fon getirisi verilerini alır, cache uygulayarak
      *
-     * @param string $queryParams İsteğe bağlı olarak eklenecek query parametreleri
-     * @return array|mixed
+     * @param string|null $search Arama metni
+     * @param array $filter Filtreleme kriterleri
+     * @param string|null $sort Sıralama alanı
+     * @param string $sortDirection Sıralama yönü (asc/desc)
+     * @return array
      * @throws \Exception
      */
-    public function fundsYield(string $queryParams = ""): mixed
+    public function fundsYield(
+        ?string $search = null,
+        array $filter = [],
+        ?string $sort = null,
+        string $sortDirection = 'asc',
+    ): array
     {
         // Cache'ten veriyi kontrol et
-        $cachedData = $this->getFromCache($queryParams);
+        $cachedData = $this->getFromCache($search, $filter, $sort, $sortDirection);
         if ($cachedData) {
             return $cachedData;
         }
@@ -41,7 +48,7 @@ class FinanceService
         $browserApiUrl = env('BROWSER_API_URL', '') . '/chromium/bql';
 
         // GraphQL sorgusu (query parametrelerini de geçiriyoruz)
-        $query = $this->getFundsQuery($queryParams);
+        $query = $this->getFundsQuery();
 
         try {
             // URL'yi oluştur
@@ -62,7 +69,13 @@ class FinanceService
             $result = $this->extractJsonFromHtml($responseData);
 
             // Sonucu veritabanına cache'le
-            $this->cacheResult($queryParams, $result);
+            $this->cacheResult($result);
+
+            // API'den sonuç aldıktan sonra tekrar cache'i arama ve filtreleme ile sorgula
+            $cachedData = $this->getFromCache($search, $filter, $sort, $sortDirection);
+            if ($cachedData) {
+                return $cachedData;
+            }
 
             return $result;
 
@@ -79,51 +92,129 @@ class FinanceService
     }
 
     /**
-     * Cache'ten veriyi al
+     * Cache'ten veriyi al, veritabanı seviyesinde arama, filtreleme ve sıralama uygula
      *
-     * @param string $queryParams
+     * @param string|null $search Arama metni
+     * @param array $filter Filtreleme kriterleri
+     * @param string|null $sort Sıralama alanı
+     * @param string $sortDirection Sıralama yönü (asc/desc)
      * @return array|null
      */
-    private function getFromCache(string $queryParams): ?array
+    private function getFromCache(
+        ?string $search = null,
+        array $filter = [],
+        ?string $sort = null,
+        string $sortDirection = 'asc'
+    ): ?array
     {
-        $cacheRecord = FundYield::where('query_params', $queryParams)
-            ->where('expires_at', '>', now())
-            ->latest()
-            ->first();
+        // Temel sorgu - sadece süresi dolmamış kayıtları al
+        $query = FundYield::where('expires_at', '>', now());
 
-        if ($cacheRecord) {
-          $responseData  =  $cacheRecord->response_data ?? null;
-
-          if($responseData){
-              return json_decode($cacheRecord->response_data,true);
-          }
-
+        // Arama işlemi
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('code', 'like', "%$search%")
+                  ->orWhere('title', 'like', "%$search%")
+                  ->orWhere('type', 'like', "%$search%")
+                  ->orWhere('management_company_id', 'like', "%$search%");
+            });
         }
 
-        return null;
+        // Filtreleme işlemi
+        if (!empty($filter)) {
+            foreach ($filter as $field => $value) {
+                // Getiri aralıkları için özel filtreleme
+                if (strpos($field, 'yield_') === 0 && is_array($value)) {
+                    // Minimum değer filtresi
+                    if (isset($value['min'])) {
+                        $query->where($field, '>=', $value['min']);
+                    }
+
+                    // Maksimum değer filtresi
+                    if (isset($value['max'])) {
+                        $query->where($field, '<=', $value['max']);
+                    }
+                }
+                // Boolean değerler için (tefas)
+                elseif ($field === 'tefas') {
+                    $boolValue = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                    $query->where($field, $boolValue);
+                }
+                // Normal eşitlik filtreleri
+                else {
+                    $query->where($field, $value);
+                }
+            }
+        }
+
+        // Sıralama
+        if ($sort) {
+            $direction = strtolower($sortDirection) === 'desc' ? 'desc' : 'asc';
+            $query->orderBy($sort, $direction);
+        } else {
+            // Varsayılan sıralama
+            $query->latest();
+        }
+
+        // Sonuçları al
+        $cacheRecords = $query->get()->toArray();
+
+        if ($cacheRecords) {
+            $formatedCacheRecord = [
+                "start"   => null,
+                "end"     => null,
+                "results" => $cacheRecords
+            ];
+
+            return $formatedCacheRecord;
+        }
+
+        return [];
     }
 
     /**
      * Sonucu veritabanına cache'le
      *
-     * @param string $queryParams
      * @param array $result
      * @return void
      */
-    private function cacheResult(string $queryParams, array $result): void
+    private function cacheResult(array $result): void
     {
         try {
-            // 1 gün sonra geçersiz olacak şekilde kaydet
-            $fundYield                = new FundYield();
-            $fundYield->fund_id       = 'cache_' . md5($queryParams); // Unique bir ID oluştur
-            $fundYield->query_params  = $queryParams;
-            $fundYield->response_data = json_encode($result);
-            $fundYield->expires_at    = now()->addDay();
-            $fundYield->save();
+            // Sonuç içinde results anahtarı var mı kontrol et
+            $results = $result['results'] ?? null;
+            if (isset($results) && is_array($results) && !empty($results)) {
+                $data = [];
+                foreach ($results as $fund) {
+                    $data[] = [
+                        'code'                  => $fund['code'] ?? null,
+                        'management_company_id' => $fund['management_company_id'] ?? null,
+                        'title'                 => $fund['title'] ?? null,
+                        'type'                  => $fund['type'] ?? null,
+                        'tefas'                 => $fund['tefas'] ? 'true' : 'false',
+                        'yield_1m'              => $fund['yield_1m'] ?? null,
+                        'yield_3m'              => $fund['yield_3m'] ?? null,
+                        'yield_6m'              => $fund['yield_6m'] ?? null,
+                        'yield_ytd'             => $fund['yield_ytd'] ?? null,
+                        'yield_1y'              => $fund['yield_1y'] ?? null,
+                        'yield_3y'              => $fund['yield_3y'] ?? null,
+                        'yield_5y'              => $fund['yield_5y'] ?? null,
+                        'expires_at'            => now()->addDay(),
+                        'created_at'            => now(),
+                        'updated_at'            => now(),
+                    ];
+                }
 
+                FundYield::insert($data);
+            } else {
+                // Sonuç yapısında 'results' yoksa, bir hata kaydı oluştur
+                \Log::warning('Fon getirisi verisi beklenen formatta değil', [
+                    'result' => $result
+                ]);
+            }
 
             // Eski cache kayıtlarını temizle (opsiyonel)
-            //  $this->cleanupExpiredCache();
+            // $this->cleanupExpiredCache();
 
         } catch (\Exception $e) {
             // Cache kaydetme hatası kritik değil, sadece logla ve devam et
@@ -152,12 +243,11 @@ class FinanceService
     /**
      * Fintables fon getirisi için GraphQL sorgusunu döndürür
      *
-     * @param string $queryParams İsteğe bağlı olarak eklenecek query parametreleri
      * @return string
      */
-    private function getFundsQuery(string $queryParams = ""): string
+    private function getFundsQuery(): string
     {
-        $financeApiUrl = env('FINANCE_API_URL') . "/funds/yield/" . $queryParams;
+        $financeApiUrl = env('FINANCE_API_URL') . "/funds/yield/";
 
         return <<<GRAPHQL
         mutation FormExample {
@@ -194,7 +284,8 @@ class FinanceService
     {
         try {
             $httpOptions = [
-                'verify' => false, // SSL doğrulamasını kapat
+                'verify' => false,
+                // SSL doğrulamasını kapat
             ];
 
             return Http::withOptions($httpOptions)

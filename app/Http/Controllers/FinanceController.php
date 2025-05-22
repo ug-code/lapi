@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Finance\FundYieldRequest;
 use App\Services\FinanceService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class FinanceController
 {
@@ -20,18 +20,24 @@ class FinanceController
     /**
      * Fon getirisi bilgilerini döndürür.
      *
-     * @param Request $request
+     * @param FundYieldRequest $request
      * @return JsonResponse
+     * @throws \Exception
      */
-    public function fundsYield(Request $request): JsonResponse
+    public function fundsYield(FundYieldRequest $request): JsonResponse
     {
-        // Query parametrelerini alıp bir string olarak birleştir
-        $queryParams = "";
-        if ($request->getQueryString()) {
-            $queryParams = "?" . $request->getQueryString();
-        }
+        // Arama, filtreleme ve sıralama parametrelerini al
+        $search = $request->input('search');
+        $filter = $request->collect('filter')->toArray();
+        $sort = $request->input('sort');
+        $sortDirection = $request->input('direction', 'asc');
 
-        $response = $this->financeService->fundsYield($queryParams);
+        $response = $this->financeService->fundsYield(
+            search: $search,
+            filter: $filter,
+            sort: $sort,
+            sortDirection: $sortDirection
+        );
 
         return response()->json($response);
     }
