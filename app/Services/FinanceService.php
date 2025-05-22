@@ -86,21 +86,22 @@ class FinanceService
      */
     private function getFromCache(string $queryParams): ?array
     {
-        $cacheRecord = FundYield::where('query_params', $queryParams)
-            ->where('expires_at', '>', now())
+        $cacheRecord = FundYield::where('expires_at', '>', now())
             ->latest()
-            ->first();
+            ->get()->toArray();
 
         if ($cacheRecord) {
-          $responseData  =  $cacheRecord->response_data ?? null;
+            $formatedCacheRecord = [
+                "start"   => null,
+                "end"     => null,
+                "results" => $cacheRecord
+            ];
 
-          if($responseData){
-              return json_decode($cacheRecord->response_data,true);
-          }
+            return $formatedCacheRecord;
 
         }
 
-        return null;
+        return [];
     }
 
     /**
@@ -113,22 +114,47 @@ class FinanceService
     private function cacheResult(string $queryParams, array $result): void
     {
         try {
-            // 1 gün sonra geçersiz olacak şekilde kaydet
-            $fundYield                = new FundYield();
-            $fundYield->fund_id       = 'cache_' . md5($queryParams); // Unique bir ID oluştur
-            $fundYield->query_params  = $queryParams;
-            $fundYield->response_data = json_encode($result);
-            $fundYield->expires_at    = now()->addDay();
-            $fundYield->save();
+            // Sonuç içinde results anahtarı var mı kontrol et
+            $results = $result['results'] ?? null;
+            if (isset($results) && is_array($results) && !empty($results)) {
+                $data = [];
+                foreach ($results as $fund) {
+                    $data[] = [
+                        'fund_id'               => 'cache_' . md5($queryParams),
+                        'code'                  => $fund['code'] ?? null,
+                        'management_company_id' => $fund['management_company_id'] ?? null,
+                        'title'                 => $fund['title'] ?? null,
+                        'type'                  => $fund['type'] ?? null,
+                        'tefas'                 => $fund['tefas'] ? 'true' : 'false',
+                        'yield_1m'              => $fund['yield_1m'] ?? null,
+                        'yield_3m'              => $fund['yield_3m'] ?? null,
+                        'yield_6m'              => $fund['yield_6m'] ?? null,
+                        'yield_ytd'             => $fund['yield_ytd'] ?? null,
+                        'yield_1y'              => $fund['yield_1y'] ?? null,
+                        'yield_3y'              => $fund['yield_3y'] ?? null,
+                        'yield_5y'              => $fund['yield_5y'] ?? null,
+                        'expires_at'            => now()->addDay(),
+                        'created_at'            => now(),
+                        'updated_at'            => now(),
+                    ];
+                }
 
+                FundYield::insert($data);
+            } else {
+                // Sonuç yapısında 'results' yoksa, bir hata kaydı oluştur
+                \Log::warning('Fon getirisi verisi beklenen formatta değil', [
+                    'result' => $result
+                ]);
+            }
 
             // Eski cache kayıtlarını temizle (opsiyonel)
-            //  $this->cleanupExpiredCache();
+            // $this->cleanupExpiredCache();
 
         } catch (\Exception $e) {
             // Cache kaydetme hatası kritik değil, sadece logla ve devam et
             \Log::warning('Cache kaydetme hatası: ' . $e->getMessage(), [
-                'exception' => $e
+                'exception'    => $e,
+                'query_params' => $queryParams
             ]);
         }
     }
@@ -194,7 +220,8 @@ class FinanceService
     {
         try {
             $httpOptions = [
-                'verify' => false, // SSL doğrulamasını kapat
+                'verify' => false,
+                // SSL doğrulamasını kapat
             ];
 
             return Http::withOptions($httpOptions)
