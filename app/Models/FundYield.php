@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -47,7 +48,10 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereExpiresAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereUpdatedAt($value)
+ * @mixin Eloquent
  */
+
+
 class FundYield extends Model
 {
     protected $fillable = [

@@ -30,9 +30,9 @@ class FinanceService
      */
     public function fundsYield(
         ?string $search = null,
-        array $filter = [],
+        array   $filter = [],
         ?string $sort = null,
-        string $sortDirection = 'asc',
+        string  $sortDirection = 'asc',
     ): array
     {
         // Cache'ten veriyi kontrol et
@@ -102,9 +102,9 @@ class FinanceService
      */
     private function getFromCache(
         ?string $search = null,
-        array $filter = [],
+        array   $filter = [],
         ?string $sort = null,
-        string $sortDirection = 'asc'
+        string  $sortDirection = 'asc'
     ): ?array
     {
 
@@ -125,11 +125,11 @@ class FinanceService
 
         // Arama işlemi
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('code', 'like', "%$search%")
-                  ->orWhere('title', 'like', "%$search%")
-                  ->orWhere('type', 'like', "%$search%")
-                  ->orWhere('management_company_id', 'like', "%$search%");
+                    ->orWhere('title', 'like', "%$search%")
+                    ->orWhere('type', 'like', "%$search%")
+                    ->orWhere('management_company_id', 'like', "%$search%");
             });
         }
 
@@ -148,13 +148,11 @@ class FinanceService
                     if (isset($value['max'])) {
                         $query->where($field, '<=', $value['max']);
                     }
-                }
-                // Boolean değerler için (tefas)
+                } // Boolean değerler için (tefas)
                 elseif ($field === 'tefas') {
                     $boolValue = filter_var($value, FILTER_VALIDATE_BOOLEAN);
                     $query->where($field, $boolValue);
-                }
-                // Normal eşitlik filtreleri
+                } // Normal eşitlik filtreleri
                 else {
                     $query->where($field, $value);
                 }
@@ -234,7 +232,7 @@ class FinanceService
         } catch (\Exception $e) {
             // Cache kaydetme hatası kritik değil, sadece logla ve devam et
             \Log::warning('Cache kaydetme hatası: ' . $e->getMessage(), [
-                'exception'    => $e,
+                'exception' => $e,
             ]);
         }
     }
