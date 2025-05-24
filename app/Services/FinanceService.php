@@ -124,7 +124,8 @@ class FinanceService
                 $q->where('code', 'like', "%$search%")
                     ->orWhere('title', 'like', "%$search%")
                     ->orWhere('type', 'like', "%$search%")
-                    ->orWhere('management_company_id', 'like', "%$search%");
+                    ->orWhere('management_company_id', 'like', "%$search%")
+                    ->orWhere('categories_id', 'like', "%$search%");
             });
         }
 
@@ -144,6 +145,9 @@ class FinanceService
                     }
                 } // management_company_id için dizi kontrolü
                 elseif ($field === 'management_company_id' && is_array($value)) {
+                    $query->whereIn($field, $value);
+                } // categories_id için dizi kontrolü
+                elseif ($field === 'categories_id' && is_array($value)) {
                     $query->whereIn($field, $value);
                 } // Boolean değerler için (tefas)
                 elseif ($field === 'tefas') {
@@ -191,15 +195,21 @@ class FinanceService
                 $data = [];
                 foreach ($results as $fund) {
                     $managementCompanyId = $fund['management_company_id'] ?? null;
+                    $categoriesId = $fund['categories_id'] ?? $fund['categories__id'] ?? null;
 
                     // Eğer management_company_id bir dizi ise, ilk değeri al veya string'e dönüştür
                     if (is_array($managementCompanyId)) {
                         $managementCompanyId = !empty($managementCompanyId) ? $managementCompanyId[0] : null;
                     }
 
+                    // Eğer categories_id bir dizi ise, ilk değeri al veya null olarak bırak
+                    if (is_array($categoriesId)) {
+                        $categoriesId = !empty($categoriesId) ? $categoriesId[0] : null;
+                    }
+
                     $data[] = [
                         'code'                  => $fund['code'] ?? null,
-                        'categories_id'         => $fund['categories__id'] ?? null,
+                        'categories_id'         => $categoriesId,
                         'management_company_id' => $managementCompanyId,
                         'title'                 => $fund['title'] ?? null,
                         'type'                  => $fund['type'] ?? null,
