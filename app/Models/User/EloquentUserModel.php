@@ -2,6 +2,7 @@
 
 namespace App\Models\User;
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -17,6 +18,8 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @property string password
  * @property string remember_token
  * @property string email_verified_at
+ *
+ * @mixin Eloquent
  */
 class EloquentUserModel extends Authenticatable implements JWTSubject
 {

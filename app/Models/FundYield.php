@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Eloquent;
-use Illuminate\Database\Eloquent\Model;
+
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\FundYield
@@ -22,37 +22,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property float|null $yield_1y 1 yıllık getiri
  * @property float|null $yield_3y 3 yıllık getiri
  * @property float|null $yield_5y 5 yıllık getiri
- * @property \Illuminate\Support\Carbon|null $expires_at Cache'in geçerlilik süresi
- * @property \Illuminate\Support\Carbon|null $created_at Oluşturulma tarihi
- * @property \Illuminate\Support\Carbon|null $updated_at Güncellenme tarihi
- *
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield query()
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereFundId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereManagementCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereTitle($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereTefas($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereYield1m($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereYield3m($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereYield6m($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereYieldYtd($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereYield1y($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereYield3y($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereYield5y($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereQueryParams($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereResponseData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereExpiresAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|FundYield whereUpdatedAt($value)
- * @mixin Eloquent
+ * @property Carbon|null $expires_at Cache'in geçerlilik süresi
+ * @property Carbon|null $created_at Oluşturulma tarihi
+ * @property Carbon|null $updated_at Güncellenme tarihi
  */
 
 
-class FundYield extends Model
+class FundYield extends BaseModel
 {
     protected $fillable = [
 

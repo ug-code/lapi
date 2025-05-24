@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string tr_keyword
  * @property string detail
  */
-class AppKeyword extends Model
+class AppKeyword extends BaseModel
 {
     use SoftDeletes;
     protected $primaryKey = 'id';

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 
@@ -11,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int user_id
  * @property boolean description
  */
-class AppKeywordCategory extends Model
+class AppKeywordCategory extends BaseModel
 {
     use SoftDeletes;
     protected $primaryKey = 'id';

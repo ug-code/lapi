@@ -138,7 +138,7 @@ class FinanceService
         if (!empty($filter)) {
             foreach ($filter as $field => $value) {
                 // Getiri aralıkları için özel filtreleme
-                if (strpos($field, 'yield_') === 0 && is_array($value)) {
+                if (str_starts_with($field, 'yield_') && is_array($value)) {
                     // Minimum değer filtresi
                     if (isset($value['min'])) {
                         $query->where($field, '>=', $value['min']);
@@ -237,21 +237,6 @@ class FinanceService
         }
     }
 
-    /**
-     * Süresi dolmuş cache kayıtlarını temizle
-     *
-     * @return void
-     */
-    private function cleanupExpiredCache(): void
-    {
-        // Haftada bir kez çalışacak şekilde rasteleştir (performans için)
-        if (rand(1, 100) <= 15) {
-            FundYield::where('expires_at', '<', now())
-                ->where('query_params', '!=', null)
-                ->limit(500) // Bir seferde çok fazla silme işlemi yapma
-                ->delete();
-        }
-    }
 
     /**
      * Fintables fon getirisi için GraphQL sorgusunu döndürür
@@ -293,7 +278,7 @@ class FinanceService
      * @param string $query
      * @return Response
      */
-    private function sendApiRequest(string $url, string $query)
+    private function sendApiRequest(string $url, string $query): Response
     {
         try {
             $httpOptions = [
