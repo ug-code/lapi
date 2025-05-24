@@ -51,6 +51,7 @@ use Illuminate\Database\Eloquent\Model;
 class FundYield extends Model
 {
     protected $fillable = [
+
         'code',
         'management_company_id',
         'title',

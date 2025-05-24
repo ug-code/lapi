@@ -107,8 +107,21 @@ class FinanceService
         string $sortDirection = 'asc'
     ): ?array
     {
+
         // Temel sorgu - sadece süresi dolmamış kayıtları al
         $query = FundYield::where('expires_at', '>', now());
+
+        $cacheRecord = FundYield::where('expires_at', '>', now())
+            ->latest()
+            ->get()->toArray();
+
+        if ($cacheRecord) {
+            $formatedCacheRecord = [
+                "start"   => null,
+                "end"     => null,
+                "results" => $cacheRecord
+            ];
+        }
 
         // Arama işlemi
         if ($search) {
@@ -119,6 +132,7 @@ class FinanceService
                   ->orWhere('management_company_id', 'like', "%$search%");
             });
         }
+
 
         // Filtreleme işlemi
         if (!empty($filter)) {
@@ -187,6 +201,7 @@ class FinanceService
                 $data = [];
                 foreach ($results as $fund) {
                     $data[] = [
+
                         'code'                  => $fund['code'] ?? null,
                         'management_company_id' => $fund['management_company_id'] ?? null,
                         'title'                 => $fund['title'] ?? null,
@@ -219,7 +234,7 @@ class FinanceService
         } catch (\Exception $e) {
             // Cache kaydetme hatası kritik değil, sadece logla ve devam et
             \Log::warning('Cache kaydetme hatası: ' . $e->getMessage(), [
-                'exception' => $e
+                'exception'    => $e,
             ]);
         }
     }
