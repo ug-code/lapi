@@ -142,17 +142,14 @@ class FinanceService
                     if (isset($value['max'])) {
                         $query->where($field, '<=', $value['max']);
                     }
-                }
-                // management_company_id için dizi kontrolü
+                } // management_company_id için dizi kontrolü
                 elseif ($field === 'management_company_id' && is_array($value)) {
                     $query->whereIn($field, $value);
-                }
-                // Boolean değerler için (tefas)
+                } // Boolean değerler için (tefas)
                 elseif ($field === 'tefas') {
                     $boolValue = $value ? 'true' : 'false';
                     $query->where($field, $boolValue);
-                }
-                // Normal eşitlik filtreleri
+                } // Normal eşitlik filtreleri
                 else {
                     $query->where($field, $value);
                 }
@@ -202,6 +199,7 @@ class FinanceService
 
                     $data[] = [
                         'code'                  => $fund['code'] ?? null,
+                        'categories_id'         => $fund['categories__id'] ?? null,
                         'management_company_id' => $managementCompanyId,
                         'title'                 => $fund['title'] ?? null,
                         'type'                  => $fund['type'] ?? null,

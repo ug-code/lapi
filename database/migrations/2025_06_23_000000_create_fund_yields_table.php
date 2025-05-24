@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('fund_yields', function (Blueprint $table) {
             $table->id();
-            $table->string('fund_id')->nullable();
+            $table->integer('categories_id')->nullable();
             $table->string('code')->nullable();
             $table->string('management_company_id')->nullable();
             $table->string('title')->nullable();

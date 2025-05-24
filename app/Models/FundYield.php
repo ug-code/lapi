@@ -11,6 +11,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property string|null $fund_id Fon kimlik bilgisi
  * @property string|null $code Fon kodu
+ * @property int|null $categories_id Yönetici şirket ID'si
  * @property string|null $management_company_id Yönetici şirket ID'si
  * @property string|null $title Fon başlığı
  * @property string|null $type Fon tipi
@@ -33,6 +34,7 @@ class FundYield extends BaseModel
     protected $fillable = [
 
         'code',
+        'categories_id',
         'management_company_id',
         'title',
         'type',
