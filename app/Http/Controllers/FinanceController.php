@@ -26,11 +26,13 @@ class FinanceController
      */
     public function fundsYield(FundYieldRequest $request): JsonResponse
     {
+        // Validasyon kontrolü geçtikten sonra parametreleri al
+        $validated = $request->validated();
         // Arama, filtreleme ve sıralama parametrelerini al
         $search = $request->input('search');
         $filter = $request->collect('filter')->toArray();
         $sort = $request->input('sort');
-        $sortDirection = $request->input('direction', 'asc');
+        $sortDirection = (string) $request->input('direction', 'asc');
 
         $response = $this->financeService->fundsYield(
             search: $search,

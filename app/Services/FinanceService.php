@@ -24,7 +24,7 @@ class FinanceService
      * @param string|null $search Arama metni
      * @param array $filter Filtreleme kriterleri
      * @param string|null $sort Sıralama alanı
-     * @param string $sortDirection Sıralama yönü (asc/desc)
+     * @param string|null $sortDirection Sıralama yönü (asc/desc)
      * @return array
      * @throws \Exception
      */
@@ -32,7 +32,7 @@ class FinanceService
         ?string $search = null,
         array   $filter = [],
         ?string $sort = null,
-        string  $sortDirection = 'asc',
+        ?string $sortDirection = 'asc',
     ): array
     {
         // Cache'ten veriyi kontrol et
@@ -97,14 +97,14 @@ class FinanceService
      * @param string|null $search Arama metni
      * @param array $filter Filtreleme kriterleri
      * @param string|null $sort Sıralama alanı
-     * @param string $sortDirection Sıralama yönü (asc/desc)
+     * @param string|null $sortDirection Sıralama yönü (asc/desc)
      * @return array|null
      */
     private function getFromCache(
         ?string $search = null,
         array   $filter = [],
         ?string $sort = null,
-        string  $sortDirection = 'asc'
+        ?string $sortDirection = 'asc'
     ): ?array
     {
         // Önce cache'te süresi dolmamış herhangi bir kayıt var mı kontrol et
@@ -155,7 +155,7 @@ class FinanceService
 
         // Sıralama
         if ($sort) {
-            $direction = strtolower($sortDirection) === 'desc' ? 'desc' : 'asc';
+            $direction = $sortDirection && strtolower($sortDirection) === 'desc' ? 'desc' : 'asc';
             $query->orderBy($sort, $direction);
         } else {
             // Varsayılan sıralama
