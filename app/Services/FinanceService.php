@@ -107,21 +107,16 @@ class FinanceService
         string  $sortDirection = 'asc'
     ): ?array
     {
+        // Önce cache'te süresi dolmamış herhangi bir kayıt var mı kontrol et
+        $hasCacheRecords = FundYield::where('expires_at', '>', now())->exists();
 
-        // Temel sorgu - sadece süresi dolmamış kayıtları al
-        $query = FundYield::where('expires_at', '>', now());
-
-        $cacheRecord = FundYield::where('expires_at', '>', now())
-            ->latest()
-            ->get()->toArray();
-
-        if ($cacheRecord) {
-            $formatedCacheRecord = [
-                "start"   => null,
-                "end"     => null,
-                "results" => $cacheRecord
-            ];
+        // Eğer cache boşsa (süresi dolmuş tüm kayıtlar), null döndür
+        if (!$hasCacheRecords) {
+            return null;
         }
+
+        // Cache varsa, filtrelemeye başla
+        $query = FundYield::where('expires_at', '>', now());
 
         // Arama işlemi
         if ($search) {
@@ -132,7 +127,6 @@ class FinanceService
                     ->orWhere('management_company_id', 'like', "%$search%");
             });
         }
-
 
         // Filtreleme işlemi
         if (!empty($filter)) {
@@ -150,7 +144,7 @@ class FinanceService
                     }
                 } // Boolean değerler için (tefas)
                 elseif ($field === 'tefas') {
-                    $boolValue = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                    $boolValue = $value ? 'true' : 'false';
                     $query->where($field, $boolValue);
                 } // Normal eşitlik filtreleri
                 else {
@@ -171,17 +165,12 @@ class FinanceService
         // Sonuçları al
         $cacheRecords = $query->get()->toArray();
 
-        if ($cacheRecords) {
-            $formatedCacheRecord = [
-                "start"   => null,
-                "end"     => null,
-                "results" => $cacheRecords
-            ];
-
-            return $formatedCacheRecord;
-        }
-
-        return [];
+        // Cache varsa, filtre sonuçları boş olsa bile formatlanmış sonuç döndür
+        return [
+            "start"   => null,
+            "end"     => null,
+            "results" => $cacheRecords
+        ];
     }
 
     /**

@@ -66,6 +66,7 @@ Route::prefix('v1')->group(function () {
 
     Route::controller(FinanceController::class)->group(function () {
         Route::get('/funds/yield/{query?}', 'fundsYield');
+        Route::post('/funds/yield', 'fundsYield');
     });
 
 
