@@ -84,6 +84,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/users/{id}/roles', 'getUserRoles');
             Route::post('/users/{id}/roles', 'assignRole');
             Route::delete('/users/{id}/roles/{roleId}', 'removeRole');
+            Route::put('/users/{id}','update');
+
         });
     });
 
