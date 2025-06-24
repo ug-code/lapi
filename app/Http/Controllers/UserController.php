@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\User\AssignRoleRequest;
+use App\Http\Requests\User\UserUpdateRequest;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 
@@ -111,6 +112,19 @@ class UserController extends Controller
                 'user' => $user,
                 'roles' => $user->roles
             ]
+        ]);
+    }
+
+    public function update(UserUpdateRequest $request, int $id): JsonResponse
+    {
+        $validated = $request->validated();
+
+        $user = $this->userService->updateUser($id, $validated);
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Kullanıcı başarıyla güncellendi',
+            'data'    => $user
         ]);
     }
 }
