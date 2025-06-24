@@ -68,6 +68,9 @@ class UserService
     {
         $user = $this->userRepository->findById($userId);
 
+        // Mevcut tüm rolleri kaldır
+        $user->roles()->detach();
+
         foreach ($roleIds as $roleId) {
             // Eğer rol zaten atanmışsa atlayalım
             if (!$user->hasRole($roleId)) {
