@@ -104,4 +104,20 @@ class UserService
         // Burada ek iş mantığı eklenebilir
         return $this->userRepository->removeRole($userId, $roleId);
     }
+
+
+    public function updateUser(int $userId, array $data)
+    {
+        $user = $this->userRepository->findById($userId);
+
+        if (isset($data['password']) && !empty($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        $user->update($data);
+
+        return $user->fresh();
+    }
 }
