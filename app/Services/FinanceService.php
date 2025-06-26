@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\FundYield;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use App\Helpers\ApiHelper;
 
 class FinanceService
 {
@@ -52,21 +53,21 @@ class FinanceService
 
         try {
             // URL'yi oluştur
-            $url = $this->buildBrowserApiUrl($browserApiUrl, $token);
+            $url = ApiHelper::buildBrowserApiUrl($browserApiUrl, $token);
 
             // Laravel HTTP istemcisi ile istek gönder
-            $response = $this->sendApiRequest($url, $query);
+            $response = ApiHelper::sendApiRequest($url, $query);
 
             // İstek başarısız oldu mu kontrol et
             if ($response->failed()) {
-                return $this->formatErrorResponse('API isteği başarısız oldu', $response);
+                return ApiHelper::formatErrorResponse('API isteği başarısız oldu', $response);
             }
 
             // JSON yanıtını al
             $responseData = $response->json();
 
             // Pre etiketi içindeki JSON verisini ayıkla
-            $result = $this->extractJsonFromHtml($responseData);
+            $result = ApiHelper::extractJsonFromHtml($responseData);
 
             // Sonucu veritabanına cache'le
             $this->cacheResult($result);
@@ -267,100 +268,5 @@ class FinanceService
         }
         GRAPHQL;
     }
-
-    /**
-     * Browser API URL'sini oluşturur
-     *
-     * @param string $baseUrl
-     * @param string $token
-     * @return string
-     */
-    private function buildBrowserApiUrl(string $baseUrl, string $token): string
-    {
-        return "$baseUrl?token=$token";
-    }
-
-    /**
-     * API isteğini gönderir
-     *
-     * @param string $url
-     * @param string $query
-     * @return Response
-     */
-    private function sendApiRequest(string $url, string $query): Response
-    {
-        try {
-            $httpOptions = [
-                'verify' => false,
-                // SSL doğrulamasını kapat
-            ];
-
-            return Http::withOptions($httpOptions)
-                ->connectTimeout(0)
-                ->timeout(0)
-                ->withHeaders([
-                    'Content-Type' => 'application/json'
-                ])
-                ->post($url, [
-                    'query' => $query,
-                ])->throw(); // Burada RequestException fırlatılır
-
-
-        } catch (\Exception $e) {
-            \Log::error('HTTP İsteği Hatası: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * Hata yanıtını formatlar
-     *
-     * @param string $message
-     * @param Response $response
-     * @return array
-     */
-    private function formatErrorResponse(string $message, $response): array
-    {
-        return [
-            'error'  => $message,
-            'status' => $response->status(),
-            'body'   => $response->body(),
-        ];
-    }
-
-    /**
-     * HTML içindeki pre etiketinden JSON verisini ayıklar
-     *
-     * @param array $responseData
-     * @return array
-     */
-    private function extractJsonFromHtml(array $responseData): array
-    {
-        // HTML içerisindeki <pre> etiketindeki JSON verisini ayıkla
-        if (isset($responseData['data']['html']['html'])) {
-            $htmlContent = $responseData['data']['html']['html'];
-
-            // <pre> etiketi içindeki içeriği al
-            if (preg_match('/<pre>(.*?)<\/pre>/s', $htmlContent, $matches)) {
-                $jsonString = $matches[1];
-
-                // JSON'u düzgün bir şekilde ayrıştır
-                $jsonData = json_decode($jsonString, true);
-
-                if ($jsonData) {
-                    return $jsonData;
-                } else {
-                    return [
-                        'error' => 'JSON ayrıştırma hatası: ' . json_last_error_msg(),
-                        'raw'   => $jsonString
-                    ];
-                }
-            }
-        }
-
-        return ['error'    => 'Beklenen veri bulunamadı',
-                'response' => $responseData];
-    }
-
 
 }
