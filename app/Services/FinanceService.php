@@ -37,7 +37,7 @@ class FinanceService
     ): array
     {
         // Cache'ten veriyi kontrol et
-        $cachedData = $this->getFromCache($search, $filter, $sort, $sortDirection);
+        $cachedData = $this->getFundYieldFromCache($search, $filter, $sort, $sortDirection);
         if ($cachedData) {
             return $cachedData;
         }
@@ -49,7 +49,7 @@ class FinanceService
         $browserApiUrl = env('BROWSER_API_URL', '') . '/chromium/bql';
 
         // GraphQL sorgusu (query parametrelerini de geçiriyoruz)
-        $query = $this->getFundsQuery();
+        $query = $this->getFundYieldGraphQLQuery();
 
         try {
             // URL'yi oluştur
@@ -70,10 +70,10 @@ class FinanceService
             $result = ApiHelper::extractJsonFromHtml($responseData);
 
             // Sonucu veritabanına cache'le
-            $this->cacheResult($result);
+            $this->cacheFundYieldResult($result);
 
             // API'den sonuç aldıktan sonra tekrar cache'i arama ve filtreleme ile sorgula
-            $cachedData = $this->getFromCache($search, $filter, $sort, $sortDirection);
+            $cachedData = $this->getFundYieldFromCache($search, $filter, $sort, $sortDirection);
             if ($cachedData) {
                 return $cachedData;
             }
@@ -101,7 +101,7 @@ class FinanceService
      * @param string|null $sortDirection Sıralama yönü (asc/desc)
      * @return array|null
      */
-    private function getFromCache(
+    private function getFundYieldFromCache(
         ?string $search = null,
         array   $filter = [],
         ?string $sort = null,
@@ -187,7 +187,7 @@ class FinanceService
      * @param array $result
      * @return void
      */
-    private function cacheResult(array $result): void
+    private function cacheFundYieldResult(array $result): void
     {
         try {
             // Sonuç içinde results anahtarı var mı kontrol et
@@ -253,7 +253,7 @@ class FinanceService
      *
      * @return string
      */
-    private function getFundsQuery(): string
+    private function getFundYieldGraphQLQuery(): string
     {
         $financeApiUrl = env('FINANCE_API_URL') . "/funds/yield/";
 
