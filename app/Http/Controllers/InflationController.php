@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CalculateRequest;
-use Illuminate\Http\Request;
+use App\Http\Requests\Inflation\CalculateRequest;
 use App\Models\TuikMonthlyData;
 
 class InflationController extends Controller
