@@ -190,4 +190,65 @@ class FundYieldRepository
 
         return $tuikData;
     }
+
+    public function paginateFundYieldFromCache(
+        ?string $search = null,
+        array   $filter = [],
+        ?string $sort = null,
+        ?string $sortDirection = 'asc',
+        int $page = 1,
+        int $perPage = 20
+    ): ?array {
+        $hasCacheRecords = FundYield::where('expires_at', '>', now())->exists();
+        if (!$hasCacheRecords) {
+            return null;
+        }
+        $query = FundYield::where('expires_at', '>', now());
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('code', 'like', "%$search%")
+                    ->orWhere('title', 'like', "%$search%")
+                    ->orWhere('type', 'like', "%$search%")
+                    ->orWhere('management_company_id', 'like', "%$search%")
+                    ->orWhere('categories_id', 'like', "%$search%");
+            });
+        }
+        if (!empty($filter)) {
+            foreach ($filter as $field => $value) {
+                if (str_starts_with($field, 'yield_') && is_array($value)) {
+                    if (isset($value['min'])) {
+                        $query->where($field, '>=', $value['min']);
+                    }
+                    if (isset($value['max'])) {
+                        $query->where($field, '<=', $value['max']);
+                    }
+                } elseif ($field === 'management_company_id' && is_array($value)) {
+                    $query->whereIn($field, $value);
+                } elseif ($field === 'categories_id' && is_array($value)) {
+                    $query->whereIn($field, $value);
+                } elseif ($field === 'tefas') {
+                    $boolValue = $value ? 'true' : 'false';
+                    $query->where($field, $boolValue);
+                } else {
+                    $query->where($field, $value);
+                }
+            }
+        }
+        if ($sort) {
+            $direction = $sortDirection && strtolower($sortDirection) === 'desc' ? 'desc' : 'asc';
+            $query->orderBy($sort, $direction);
+        } else {
+            $query->latest();
+        }
+        $paginator = $query->paginate($perPage, ['*'], 'page', $page);
+        return [
+            "start"   => $paginator->firstItem(),
+            "end"     => $paginator->lastItem(),
+            "total"   => $paginator->total(),
+            "per_page"=> $paginator->perPage(),
+            "current_page" => $paginator->currentPage(),
+            "last_page" => $paginator->lastPage(),
+            "results" => $paginator->items(),
+        ];
+    }
 }

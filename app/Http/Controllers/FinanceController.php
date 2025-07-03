@@ -33,12 +33,16 @@ class FinanceController
         $filter = $request->collect('filter')->toArray();
         $sort = $request->input('sort');
         $sortDirection = (string) $request->input('direction', 'asc');
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 20);
 
         $response = $this->financeService->fundsYield(
             search: $search,
             filter: $filter,
             sort: $sort,
-            sortDirection: $sortDirection
+            sortDirection: $sortDirection,
+            page: $page,
+            perPage: $perPage
         );
 
         return response()->json($response);

@@ -42,10 +42,12 @@ class FinanceService
         array   $filter = [],
         ?string $sort = null,
         ?string $sortDirection = 'asc',
+        int $page = 1,
+        int $perPage = 20
     ): array
     {
         // Cache'ten veriyi kontrol et
-        $cachedData = $this->fundYieldRepository->getFundYieldFromCache($search, $filter, $sort, $sortDirection);
+        $cachedData = $this->fundYieldRepository->paginateFundYieldFromCache($search, $filter, $sort, $sortDirection, $page, $perPage);
         if ($cachedData) {
             return $cachedData;
         }
@@ -81,7 +83,7 @@ class FinanceService
             $this->fundYieldRepository->cacheFundYieldResult($result);
 
             // API'den sonuç aldıktan sonra tekrar cache'i arama ve filtreleme ile sorgula
-            $cachedData = $this->fundYieldRepository->getFundYieldFromCache($search, $filter, $sort, $sortDirection);
+            $cachedData = $this->fundYieldRepository->paginateFundYieldFromCache($search, $filter, $sort, $sortDirection, $page, $perPage);
             if ($cachedData) {
                 return $cachedData;
             }
