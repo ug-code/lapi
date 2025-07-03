@@ -73,6 +73,9 @@ class FundYieldRepository
                 // Şimdiki tarih (örn: 2025-07-01) olarak varsayıyorum, dinamik olabilir
                 $currentDate = Carbon::now()->startOfMonth();
 
+                // TuikMonthlyData verilerini bulk çek
+                $tuikData = $this->getTuikDataBulk($currentDate);
+
                 foreach ($results as $fund) {
                     $managementCompanyId = $fund['management_company_id'] ?? null;
                     $categoriesId = $fund['categories_id'] ?? $fund['categories__id'] ?? null;
@@ -93,13 +96,12 @@ class FundYieldRepository
                     $nominal_5y = $fund['yield_5y'] ?? 0;
 
                     // TÜFE değerlerini çekmek için yardımcı fonksiyon
-                    $getInflationRate = function (Carbon $start, Carbon $end): ?float {
-                        $startData = TuikMonthlyData::where('year', $start->year)
-                            ->where('month', $start->month)
-                            ->value('value');
-                        $endData = TuikMonthlyData::where('year', $end->year)
-                            ->where('month', $end->month)
-                            ->value('value');
+                    $getInflationRate = function (Carbon $start, Carbon $end) use ($tuikData): ?float {
+                        $startKey = $start->year . '-' . $start->month;
+                        $endKey = $end->year . '-' . ($end->month - 1);
+
+                        $startData = $tuikData[$startKey] ?? null;
+                        $endData = $tuikData[$endKey] ?? null;
 
                         if (!$startData || !$endData) return null;
 
@@ -170,5 +172,22 @@ class FundYieldRepository
                 'exception' => $e,
             ]);
         }
+    }
+
+    private function getTuikDataBulk(Carbon $currentDate): array
+    {
+        $startDate = $currentDate->copy()->subYears(5);
+
+        $tuikRecords = TuikMonthlyData::where('year', '>=', $startDate->year)
+            ->where('year', '<=', $currentDate->year)
+            ->get(['year', 'month', 'value']);
+
+        $tuikData = [];
+        foreach ($tuikRecords as $record) {
+            $key = $record->year . '-' . $record->month;
+            $tuikData[$key] = $record->value;
+        }
+
+        return $tuikData;
     }
 }
