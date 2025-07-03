@@ -57,6 +57,6 @@ class InflationController extends Controller
             'total_years' => round($totalYears, 2),
             'total_change_percent' => round($changePercent, 2),
         ]);
-    }
+
     }
 }
