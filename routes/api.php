@@ -4,6 +4,7 @@ use App\Http\Controllers\AIChatController;
 use App\Http\Controllers\AiToolController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FinanceController;
+use App\Http\Controllers\InflationController;
 use App\Http\Controllers\MobileAppController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\TradingController;
@@ -70,6 +71,9 @@ Route::prefix('v1')->group(function () {
     });
 
 
+    Route::controller(InflationController::class)->group(function () {
+        Route::post('/InflationCalculator/calculate', 'calculate');
+    });
     Route::middleware([JwtMiddleware::class])->group(function () {
         // Rol yönetimi rotaları
         Route::apiResource('roles', RoleController::class);
@@ -87,6 +91,8 @@ Route::prefix('v1')->group(function () {
             Route::put('/users/{id}','update');
 
         });
+
+
     });
 
 });
