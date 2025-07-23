@@ -1,24 +1,23 @@
-name: Deploy Laravel App to Koyeb
+name: Deploy Laravel to Koyeb
 
 on:
   push:
     branches:
-      - main  # veya production
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Trigger Koyeb Deploy
-        env:
-          KOYEB_API_TOKEN: ${{ secrets.KOYEB_API_TOKEN }}
-          KOYEB_APP_NAME: lapi      # kendi app adını yaz
-          KOYEB_SERVICE_NAME: web          # kendi service adını yaz
-        run: |
-          echo "Triggering deploy on Koyeb..."
-          curl -X POST https://app.koyeb.com/v1/apps/$KOYEB_APP_NAME/services/$KOYEB_SERVICE_NAME/deploy \
-            -H "Authorization: Bearer $KOYEB_API_TOKEN"
+      - name: Install Koyeb CLI
+        uses: koyeb-community/koyeb-actions@v2
+        with:
+          api_token: ${{ secrets.KOYEB_API_TOKEN }}
+
+      - name: Deploy to Koyeb
+        uses: koyeb/action-git-deploy@v1
+        with:
+          app-name: larapi           # Koyeb App adı
+          service-name: lapi               # Koyeb Service adı
