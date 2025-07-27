@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Role\IndexRoleRequest;
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
+use App\Http\Requests\Role\AssignPermissionsToRoleRequest;
 use App\Services\RoleService;
 use Illuminate\Http\JsonResponse;
 
@@ -109,6 +110,28 @@ class RoleController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Rol başarıyla silindi'
+        ]);
+    }
+
+    /**
+     * Role permission atar (permission id'leri ile)
+     *
+     * @param AssignPermissionsToRoleRequest $request
+     * @param int $roleId
+     * @return JsonResponse
+     */
+    public function assignPermissionsToRole(AssignPermissionsToRoleRequest $request, int $roleId): JsonResponse
+    {
+        $permissionIds = $request->input('permission_ids');
+        $role = $this->roleService->assignPermissionsToRoleByIds($roleId, $permissionIds);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Permission(lar) role başarıyla atandı',
+            'data' => [
+                'role' => $role,
+                'permissions' => $role->permissions
+            ]
         ]);
     }
 }

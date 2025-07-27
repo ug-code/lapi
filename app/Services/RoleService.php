@@ -104,4 +104,19 @@ class RoleService
         // Burada ek iş mantığı eklenebilir
         return $this->roleRepository->update($roleId, $data);
     }
+
+    /**
+     * Role permission atar (permission id'leri ile)
+     *
+     * @param int $roleId
+     * @param array $permissionIds
+     * @return Role
+     */
+    public function assignPermissionsToRoleByIds(int $roleId, array $permissionIds): Role
+    {
+        $role = $this->roleRepository->findById($roleId);
+        $permissionNames = \Spatie\Permission\Models\Permission::whereIn('id', $permissionIds)->pluck('name')->toArray();
+        $role->givePermissionTo($permissionNames);
+        return $role;
+    }
 }
