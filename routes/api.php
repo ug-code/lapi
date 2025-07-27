@@ -82,16 +82,16 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware([JwtMiddleware::class])->group(function () {
         // Rol yönetimi rotaları
-        Route::get('/roles/with-permissions', [RoleController::class, 'getRolesWithPermissions']);
-        Route::get('/roles/{id}/permissions', [RoleController::class, 'getRolePermissions']);
-
-        // Rol CRUD işlemleri - apiResource yerine açık yazılmış
-        Route::get('/roles', [RoleController::class, 'index']);
-        Route::post('/roles', [RoleController::class, 'store']);
-        Route::get('/roles/{id}', [RoleController::class, 'show']);
-        Route::put('/roles/{id}', [RoleController::class, 'update']);
-        Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
-        Route::post('/roles/{id}/assign-permissions', [RoleController::class, 'assignPermissionsToRole']);
+        Route::controller(RoleController::class)->group(function () {
+            Route::get('/roles/with-permissions', 'getRolesWithPermissions');
+            Route::get('/roles/{id}/permissions', 'getRolePermissions');
+            Route::get('/roles', 'index');
+            Route::post('/roles', 'store');
+            Route::get('/roles/{id}', 'show');
+            Route::put('/roles/{id}', 'update');
+            Route::delete('/roles/{id}', 'destroy');
+            Route::post('/roles/{id}/assign-permissions', 'assignPermissionsToRole');
+        });
 
         Route::controller(PermissionController::class)->group(function () {
             Route::get('/permissions', 'index');
