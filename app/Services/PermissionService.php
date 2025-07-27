@@ -17,4 +17,19 @@ class PermissionService
             'name' => $data['name']
         ]);
     }
+
+    /**
+     * Var olan bir permission'ı günceller
+     * 
+     * @param int $id
+     * @param array $data
+     * @return Permission
+     */
+    public function update(int $id, array $data)
+    {
+        $permission = Permission::findOrFail($id);
+        $permission->update($data);
+
+        return $permission->fresh();
+    }
 } 

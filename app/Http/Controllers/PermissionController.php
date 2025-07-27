@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Permission\CreateRequest;
+use App\Http\Requests\Permission\UpdateRequest;
 use App\Services\PermissionService;
 use Illuminate\Http\JsonResponse;
 
@@ -48,5 +49,23 @@ class PermissionController extends Controller
             'data'    => $permission
         ], 201);
 
+    }
+
+    /**
+     * Var olan bir permission'ı günceller
+     *
+     * @param int $id
+     * @param UpdateRequest $request
+     * @return JsonResponse
+     */
+    public function update(int $id, UpdateRequest $request): JsonResponse
+    {
+        $permission = $this->permissionService->update($id, $request->validated());
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Permission başarıyla güncellendi',
+            'data'    => $permission
+        ], 200);
     }
 }

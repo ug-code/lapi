@@ -84,7 +84,7 @@ Route::prefix('v1')->group(function () {
         // Rol yönetimi rotaları
         Route::get('/roles/with-permissions', [RoleController::class, 'getRolesWithPermissions']);
         Route::get('/roles/{id}/permissions', [RoleController::class, 'getRolePermissions']);
-        
+
         // Rol CRUD işlemleri - apiResource yerine açık yazılmış
         Route::get('/roles', [RoleController::class, 'index']);
         Route::post('/roles', [RoleController::class, 'store']);
@@ -92,10 +92,11 @@ Route::prefix('v1')->group(function () {
         Route::put('/roles/{id}', [RoleController::class, 'update']);
         Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
         Route::post('/roles/{id}/assign-permissions', [RoleController::class, 'assignPermissionsToRole']);
-        
+
         Route::controller(PermissionController::class)->group(function () {
             Route::get('/permissions', 'index');
             Route::post('/permissions/create', 'create');
+            Route::put('/permissions/{id}', 'update');
         });
 
         // Kullanıcı yönetimi rotaları
