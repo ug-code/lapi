@@ -16,6 +16,22 @@ class PermissionController extends Controller
     }
 
     /**
+     * Tüm permission'ları listeler
+     *
+     * @return JsonResponse
+     */
+    public function index(): JsonResponse
+    {
+        $permissions = $this->permissionService->getAll();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Permission listesi başarıyla getirildi',
+            'data'    => $permissions
+        ], 200);
+    }
+
+    /**
      * Yeni bir permission oluşturur
      *
      * @param CreateRequest $request

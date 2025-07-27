@@ -11,6 +11,7 @@ use App\Http\Controllers\TradingController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TefasController;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -74,10 +75,25 @@ Route::prefix('v1')->group(function () {
     Route::controller(InflationController::class)->group(function () {
         Route::post('/InflationCalculator/calculate', 'calculate');
     });
+
+    Route::controller(TefasController::class)->group(function () {
+        Route::match(['get', 'post'], '/tefas/fund-comparison', 'getFundComparison');
+    });
+
     Route::middleware([JwtMiddleware::class])->group(function () {
         // Rol yönetimi rotaları
-        Route::apiResource('roles', RoleController::class);
+        Route::get('/roles/with-permissions', [RoleController::class, 'getRolesWithPermissions']);
+        Route::get('/roles/{id}/permissions', [RoleController::class, 'getRolePermissions']);
+        
+        // Rol CRUD işlemleri - apiResource yerine açık yazılmış
+        Route::get('/roles', [RoleController::class, 'index']);
+        Route::post('/roles', [RoleController::class, 'store']);
+        Route::get('/roles/{id}', [RoleController::class, 'show']);
+        Route::put('/roles/{id}', [RoleController::class, 'update']);
+        Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
+        
         Route::controller(PermissionController::class)->group(function () {
+            Route::get('/permissions', 'index');
             Route::post('/permissions/create', 'create');
         });
 

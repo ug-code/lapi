@@ -31,6 +31,20 @@ class RoleController extends Controller
     }
 
     /**
+     * Rolleri permission'ları ile birlikte getirir
+     */
+    public function getRolesWithPermissions(): JsonResponse
+    {
+        $roles = $this->roleService->getRolesWithPermissions();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Roller ve permission\'ları başarıyla getirildi',
+            'data' => $roles
+        ]);
+    }
+
+    /**
      * Yeni rol oluşturur
      */
     public function store(StoreRoleRequest $request): JsonResponse
@@ -54,6 +68,20 @@ class RoleController extends Controller
         return response()->json([
             'status' => true,
             'data' => $role
+        ]);
+    }
+
+    /**
+     * Role bağlı permission'ları getirir
+     */
+    public function getRolePermissions(int $id): JsonResponse
+    {
+        $permissions = $this->roleService->getRolePermissions($id);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Role bağlı permission\'lar başarıyla getirildi',
+            'data' => $permissions
         ]);
     }
 

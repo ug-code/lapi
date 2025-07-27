@@ -59,6 +59,16 @@ class RoleService
     }
 
     /**
+     * Rolleri permission'ları ile birlikte getirir
+     *
+     * @return Collection
+     */
+    public function getRolesWithPermissions(): Collection
+    {
+        return Role::with('permissions')->get();
+    }
+
+    /**
      * Rol detayını getirir
      *
      * @param int $roleId
@@ -68,6 +78,18 @@ class RoleService
     {
         // Burada ek iş mantığı eklenebilir
         return $this->roleRepository->findById($roleId);
+    }
+
+    /**
+     * Role bağlı permission'ları getirir
+     *
+     * @param int $roleId
+     * @return Collection
+     */
+    public function getRolePermissions(int $roleId): Collection
+    {
+        $role = $this->roleRepository->findById($roleId);
+        return $role->permissions;
     }
 
     /**
