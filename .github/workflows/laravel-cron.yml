@@ -1,0 +1,14 @@
+name: laravel-cron.yml
+on:
+  schedule:
+    - cron: '*/1 * * * *'  # Her dakika çalıştır (UTC)
+  workflow_dispatch:       # Manuel tetikleme opsiyonu
+
+jobs:
+  call-laravel-scheduler:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Laravel scheduler
+        run: |
+          curl --fail "https://larapi.koyeb.app/api/scheduler"

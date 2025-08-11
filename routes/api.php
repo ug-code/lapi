@@ -116,3 +116,26 @@ Route::prefix('v1')->group(function () {
 });
 
 
+Route::get('/scheduler', function (Request $request) {
+    // Güvenlik kontrolü
+    /*
+    if ($request->query('key') !== env('CRON_KEY')) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized',
+        ], 403);
+    }
+*/
+    // schedule:run komutunu çalıştır
+    Artisan::call('schedule:run');
+    $output = Artisan::output();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Laravel scheduler executed successfully.',
+        'timestamp' => now()->toDateTimeString(),
+        'artisan_output' => $output,
+    ]);
+});
+
+
