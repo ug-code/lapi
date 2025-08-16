@@ -26,4 +26,4 @@ return new class extends Migration
     {
         Schema::dropIfExists('tuik_monthly_data');
     }
-}
+};
